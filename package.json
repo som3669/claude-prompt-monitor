@@ -1,0 +1,199 @@
+{
+  "name": "somshrestha-claude-prompt-monitor",
+  "displayName": "Claude Prompt Monitor",
+  "description": "Tracks every Claude Code prompt — live progress, elapsed time, estimated time to completion, and a notification the moment the prompt finishes. Works for both the Claude Code VS Code extension and terminal sessions.",
+  "version": "0.1.0",
+  "publisher": "somshrestha",
+  "license": "MIT",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/som3669/claude-prompt-monitor"
+  },
+  "bugs": {
+    "url": "https://github.com/som3669/claude-prompt-monitor/issues"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "claude",
+    "claude code",
+    "anthropic",
+    "notification",
+    "progress",
+    "eta"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "claudePromptMonitor",
+          "title": "Claude Prompt Monitor",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "claudePromptMonitor": [
+        {
+          "id": "claudePromptMonitor.sessions",
+          "name": "Sessions"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "claudePromptMonitor.showPanel",
+        "title": "Claude Monitor: Show Sessions"
+      },
+      {
+        "command": "claudePromptMonitor.openOverlay",
+        "title": "Claude Monitor: Open Desktop Widget"
+      },
+      {
+        "command": "claudePromptMonitor.toggleNotifications",
+        "title": "Claude Monitor: Toggle Completion Notifications"
+      },
+      {
+        "command": "claudePromptMonitor.clearHistory",
+        "title": "Claude Monitor: Clear Timing History"
+      },
+      {
+        "command": "claudePromptMonitor.showStats",
+        "title": "Claude Monitor: Show Timing Stats"
+      },
+      {
+        "command": "claudePromptMonitor.openTranscript",
+        "title": "Claude Monitor: Open Session Transcript"
+      },
+      {
+        "command": "claudePromptMonitor.refresh",
+        "title": "Claude Monitor: Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "claudePromptMonitor.refresh",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "claudePromptMonitor.openTranscript",
+          "when": "view == claudePromptMonitor.sessions && viewItem == session"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Claude Prompt Monitor",
+      "properties": {
+        "claudePromptMonitor.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Master switch for watching Claude Code sessions."
+        },
+        "claudePromptMonitor.scope": {
+          "type": "string",
+          "enum": [
+            "workspace",
+            "all"
+          ],
+          "default": "workspace",
+          "description": "Which sessions to track. 'workspace' only tracks sessions whose working directory is inside an open workspace folder; 'all' tracks every Claude Code session on this machine."
+        },
+        "claudePromptMonitor.notifyOnComplete": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a notification when a prompt finishes."
+        },
+        "claudePromptMonitor.notifyMinDurationSeconds": {
+          "type": "number",
+          "default": 15,
+          "description": "Skip the completion notification for prompts that finish faster than this."
+        },
+        "claudePromptMonitor.notifyOnlyWhenUnfocused": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only notify when the VS Code window is not focused."
+        },
+        "claudePromptMonitor.notificationTarget": {
+          "type": "string",
+          "enum": [
+            "editor",
+            "native",
+            "both"
+          ],
+          "enumDescriptions": [
+            "A VS Code notification inside the editor window.",
+            "A desktop notification from the operating system, which is visible while VS Code is minimised.",
+            "Both."
+          ],
+          "default": "editor",
+          "description": "Where the completion notification is shown."
+        },
+        "claudePromptMonitor.overlayAutoStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "Open the always-on-top desktop widget automatically whenever a prompt starts. Windows only. The widget runs as its own process and stays open until you close it, including after VS Code is closed."
+        },
+        "claudePromptMonitor.playSound": {
+          "type": "boolean",
+          "default": false,
+          "description": "Play a short system sound when a prompt finishes."
+        },
+        "claudePromptMonitor.showProgressNotification": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show a live progress notification (with a bar driven by the ETA) while a prompt is running."
+        },
+        "claudePromptMonitor.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show elapsed time and ETA in the status bar while a prompt is running."
+        },
+        "claudePromptMonitor.claudeHome": {
+          "type": "string",
+          "default": "",
+          "description": "Override the Claude Code home directory. Defaults to $CLAUDE_CONFIG_DIR, else ~/.claude."
+        },
+        "claudePromptMonitor.pollIntervalMs": {
+          "type": "number",
+          "default": 800,
+          "description": "How often to poll transcript files for new output, in milliseconds."
+        },
+        "claudePromptMonitor.staleTurnMinutes": {
+          "type": "number",
+          "default": 30,
+          "description": "A running turn with no new transcript output for this long is treated as abandoned."
+        },
+        "claudePromptMonitor.historySize": {
+          "type": "number",
+          "default": 200,
+          "description": "How many completed turns to keep per project for estimating durations."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npx @vscode/vsce@2.32.0 package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.4.0"
+  }
+}
