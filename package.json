@@ -2,7 +2,7 @@
   "name": "somshrestha-claude-prompt-monitor",
   "displayName": "Claude Prompt Monitor",
   "description": "Tracks every Claude Code prompt — live progress, elapsed time, estimated time to completion, and a notification the moment the prompt finishes. Works for both the Claude Code VS Code extension and terminal sessions.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "somshrestha",
   "license": "MIT",
   "icon": "icon.png",
@@ -44,6 +44,11 @@
     "views": {
       "claudePromptMonitor": [
         {
+          "id": "claudePromptMonitor.controls",
+          "name": "Widget",
+          "type": "webview"
+        },
+        {
           "id": "claudePromptMonitor.sessions",
           "name": "Sessions"
         }
@@ -56,19 +61,23 @@
       },
       {
         "command": "claudePromptMonitor.openOverlay",
-        "title": "Claude Monitor: Open Desktop Widget"
+        "title": "Claude Monitor: Open Desktop Widget",
+        "icon": "$(window)"
       },
       {
         "command": "claudePromptMonitor.toggleNotifications",
-        "title": "Claude Monitor: Toggle Completion Notifications"
+        "title": "Claude Monitor: Toggle Completion Notifications",
+        "icon": "$(bell)"
       },
       {
         "command": "claudePromptMonitor.clearHistory",
-        "title": "Claude Monitor: Clear Timing History"
+        "title": "Claude Monitor: Clear Timing History",
+        "icon": "$(clear-all)"
       },
       {
         "command": "claudePromptMonitor.showStats",
-        "title": "Claude Monitor: Show Timing Stats"
+        "title": "Claude Monitor: Show Timing Stats",
+        "icon": "$(graph)"
       },
       {
         "command": "claudePromptMonitor.openTranscript",
@@ -80,12 +89,55 @@
         "icon": "$(refresh)"
       }
     ],
+    "viewsWelcome": [
+      {
+        "view": "claudePromptMonitor.sessions",
+        "contents": "No Claude sessions seen yet.\n[Open Desktop Widget](command:claudePromptMonitor.openOverlay)\nThe widget floats above other windows and keeps showing progress when VS Code is minimised."
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "claudePromptMonitor.openOverlay",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
+      },
+      {
+        "command": "claudePromptMonitor.showPanel",
+        "key": "ctrl+alt+shift+m",
+        "mac": "cmd+alt+shift+m"
+      }
+    ],
     "menus": {
       "view/title": [
         {
+          "command": "claudePromptMonitor.openOverlay",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "navigation@1"
+        },
+        {
+          "command": "claudePromptMonitor.showStats",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "navigation@2"
+        },
+        {
           "command": "claudePromptMonitor.refresh",
           "when": "view == claudePromptMonitor.sessions",
-          "group": "navigation"
+          "group": "navigation@3"
+        },
+        {
+          "command": "claudePromptMonitor.toggleNotifications",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "1_settings@1"
+        },
+        {
+          "command": "claudePromptMonitor.openTranscript",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "1_settings@2"
+        },
+        {
+          "command": "claudePromptMonitor.clearHistory",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "9_reset@1"
         }
       ],
       "view/item/context": [

@@ -27,10 +27,23 @@ try {
 	# The previous widget was killed rather than closed; the mutex is ours now.
 	$owned = $true
 }
-if (-not $owned) { exit 0 }
 
 $stateDir = Split-Path $StatusPath -Parent
 $positionPath = Join-Path $stateDir 'overlay-position.txt'
+$showRequestPath = Join-Path $stateDir 'overlay-show.request'
+
+if (-not $owned) {
+	# Already running. Rather than exit silently - which makes the button look dead - leave a note the
+	# running widget picks up on its next tick, so it surfaces and moves back into view.
+	try {
+		if (-not (Test-Path -LiteralPath $stateDir)) { New-Item -ItemType Directory -Path $stateDir -Force | Out-Null }
+		[System.IO.File]::WriteAllText($showRequestPath, [DateTime]::UtcNow.ToString('o'))
+	} catch {
+		# nothing useful left to try
+	}
+	exit 0
+}
+try { Remove-Item -LiteralPath $showRequestPath -Force -ErrorAction SilentlyContinue } catch { }
 
 # Stale after this long, so a crashed or closed VS Code does not leave a frozen reading on screen.
 $statusMaxAgeMs = 8000
@@ -259,7 +272,8 @@ $location = New-Object System.Drawing.Point(
 )
 if (Test-Path -LiteralPath $positionPath) {
 	try {
-		$saved = (Get-Content -LiteralPath $positionPath -Raw).Split(',')
+		# Trim any byte-order mark left by older versions, which otherwise breaks the cast.
+		$saved = (Get-Content -LiteralPath $positionPath -Raw).Trim([char]0xFEFF, ' ', "`r", "`n").Split(',')
 		$candidate = New-Object System.Drawing.Point([int]$saved[0], [int]$saved[1])
 		# Ignore a position from a monitor layout that no longer exists.
 		if ($workingArea.Contains($candidate)) { $location = $candidate }
@@ -358,6 +372,7 @@ $form.Add_KeyDown({
 
 $script:cachedSessions = @()
 $script:lastScanAt = [DateTime]::MinValue
+$script:flashTicks = 0
 $scanIntervalMs = 3000
 
 function Update-Widget {
@@ -432,14 +447,53 @@ function Update-Widget {
 	}
 }
 
+# Asking for the widget again means "where is it?", so it always lands in the same known corner and
+# flashes, rather than quietly coming to the front wherever it happened to be left.
+function Show-Widget {
+	$workingArea = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
+	$form.Location = New-Object System.Drawing.Point(
+		($workingArea.Right - $form.Width - 16),
+		($workingArea.Top + 16)
+	)
+	$form.WindowState = 'Normal'
+	$form.Show()
+	$form.TopMost = $true
+	$form.BringToFront()
+	[void]$form.Activate()
+
+	$script:flashTicks = 6
+}
+
+# Pulses the border so the eye catches it even on a busy desktop.
+function Update-Flash {
+	if ($script:flashTicks -le 0) {
+		if ($form.BackColor -ne $background) { $form.BackColor = $background }
+		return
+	}
+	$script:flashTicks--
+	if ($script:flashTicks % 2 -eq 0) {
+		$form.BackColor = $accent
+	} else {
+		$form.BackColor = $background
+	}
+}
+
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 500
 $timer.Add_Tick({
-	try { Update-Widget } catch { }
+	try {
+		if (Test-Path -LiteralPath $showRequestPath) {
+			Remove-Item -LiteralPath $showRequestPath -Force -ErrorAction SilentlyContinue
+			Show-Widget
+		}
+		Update-Flash
+		Update-Widget
+	} catch { }
 })
 
 $form.Add_Shown({
 	$timer.Start()
+	$script:flashTicks = 6
 	try { Update-Widget } catch { }
 })
 
@@ -447,7 +501,7 @@ $form.Add_FormClosing({
 	$timer.Stop()
 	try {
 		if (-not (Test-Path -LiteralPath $stateDir)) { New-Item -ItemType Directory -Path $stateDir -Force | Out-Null }
-		Set-Content -LiteralPath $positionPath -Value ('{0},{1}' -f $form.Location.X, $form.Location.Y) -Encoding utf8
+		[System.IO.File]::WriteAllText($positionPath, ('{0},{1}' -f $form.Location.X, $form.Location.Y))
 	} catch { }
 })
 

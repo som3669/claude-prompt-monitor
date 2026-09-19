@@ -94,7 +94,21 @@ export class StatusFile implements vscode.Disposable {
 		}
 	}
 
-	/** Starts the widget. A second launch is a no-op: the script holds a single-instance mutex. */
+	get diagnosticsFile(): string {
+		return path.join(this.directory, 'open-overlay.log');
+	}
+
+	/** Appends one line of evidence per attempt, so a failed launch can be diagnosed after the fact. */
+	private log(message: string): void {
+		try {
+			fs.mkdirSync(this.directory, { recursive: true });
+			fs.appendFileSync(this.diagnosticsFile, `${new Date().toISOString()}  ${message}\n`, 'utf8');
+		} catch {
+			/* diagnostics are best-effort */
+		}
+	}
+
+	/** Starts the widget, or asks an already-running one to come to the front. */
 	openOverlay(): void {
 		if (process.platform !== 'win32') {
 			void vscode.window.showWarningMessage(
@@ -110,9 +124,56 @@ export class StatusFile implements vscode.Disposable {
 		if (home) {
 			args.push('-ClaudeHome', home);
 		}
+		if (!fs.existsSync(script)) {
+			// Happens when the window is still running a build that was replaced underneath it.
+			this.log(`script missing: ${script}`);
+			void vscode.window
+				.showErrorMessage(
+					'The desktop widget script is missing from the installed extension. Reloading the window usually fixes this.',
+					'Reload Window'
+				)
+				.then((choice) => {
+					if (choice === 'Reload Window') {
+						void vscode.commands.executeCommand('workbench.action.reloadWindow');
+					}
+				});
+			return;
+		}
+
 		try {
-			spawn('powershell', args, { detached: true, stdio: 'ignore', windowsHide: true }).unref();
+			// stderr is kept rather than discarded: a PowerShell that refuses to start used to fail in
+			// complete silence, which is indistinguishable from a dead button.
+			const child = spawn('powershell', args, { detached: true, stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
+			this.log(`spawned pid=${child.pid ?? 'none'} script=${script}`);
+
+			let stderr = '';
+			child.stderr?.on('data', (chunk: Buffer) => {
+				stderr += chunk.toString();
+			});
+			child.on('error', (error) => {
+				this.log(`spawn error: ${error.message}`);
+				void vscode.window.showErrorMessage(`Could not start the desktop widget: ${error.message}`);
+			});
+			child.on('exit', (code) => {
+				// Exit 0 is the normal hand-over to an already-running widget.
+				const firstLine = stderr.trim().split('\n')[0] ?? '';
+				this.log(`exit code=${code} stderr=${firstLine}`);
+				if (code !== 0 && code !== null) {
+					void vscode.window.showErrorMessage(
+						`The desktop widget could not start (PowerShell exit ${code}). ${firstLine}`
+					);
+				}
+			});
+			child.unref();
+
+			// Without this an already-open widget makes the button look dead: the second process hands
+			// over and exits, and the widget just moves, which is easy to miss on a busy desktop.
+			void vscode.window.setStatusBarMessage(
+				'$(window) Claude desktop widget opened - top right of the primary screen',
+				4000
+			);
 		} catch (error) {
+			this.log(`throw: ${String(error)}`);
 			void vscode.window.showErrorMessage(`Could not start the desktop widget: ${String(error)}`);
 		}
 	}

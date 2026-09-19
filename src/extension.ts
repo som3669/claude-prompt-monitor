@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { ControlsView } from './controlsView';
 import { Estimator } from './estimator';
 import { formatDuration } from './format';
 import { Notifier } from './notifier';
@@ -29,7 +30,8 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(tracker, view, statusBar, notifier, statusFile);
 
 	context.subscriptions.push(
-		vscode.window.createTreeView('claudePromptMonitor.sessions', { treeDataProvider: view })
+		vscode.window.createTreeView('claudePromptMonitor.sessions', { treeDataProvider: view }),
+		vscode.window.registerWebviewViewProvider(ControlsView.viewType, new ControlsView())
 	);
 
 	let watcher: TranscriptWatcher | undefined;

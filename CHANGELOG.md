@@ -1,5 +1,44 @@
 # Change Log
 
+## 0.1.1
+
+### Added
+
+- Native OS desktop notifications via `notificationTarget` (Windows toast, macOS notification centre,
+  `notify-send`), visible while VS Code is minimised.
+- Always-on-top desktop widget (`Claude Monitor: Open Desktop Widget`, `overlayAutoStart`): live
+  elapsed time, ETA, progress bar and current step in a draggable window that outlives VS Code. When
+  the extension is not running it reads the transcripts directly and still estimates, from completed
+  turns in those transcripts plus a history file the extension publishes.
+- `hooks/claude-stop-toast.ps1`: a standalone Claude Code Stop hook that notifies with no VS Code
+  running at all.
+- A Widget panel in the sidebar with real buttons, and an in-view row for opening the widget.
+- Sessions view title bar buttons for the widget, timing stats and refresh, with the rest under the
+  overflow menu. `Ctrl+Alt+M` opens the widget, `Ctrl+Alt+Shift+M` focuses the view.
+- `Open Claude Widget.bat` for launching the widget with no VS Code involved.
+- Extension icon.
+
+### Fixed
+
+- Estimates were learned against the project a session ended in but predicted from the project it
+  started in, so a session that changed directory mid-turn learned into one pool and predicted from
+  another. The project is now pinned to the turn: median error against real transcripts went from
+  7.4x to 1.12x.
+- The widget counted no tool calls and showed no current step, because the tool-use pattern did not
+  allow for the id that sits between `"type"` and `"name"` in a real transcript.
+- The widget showed no prompt text: prompt content is an array of blocks, not a string.
+- Opening the widget while it was already running did nothing visible. It now comes to the front,
+  moves to a known corner and flashes, and VS Code confirms the click in the status bar.
+- The remembered widget position was discarded on every start, because `Set-Content -Encoding utf8`
+  writes a byte-order mark that broke the coordinate parse.
+- The widget's progress bar always read zero: `[Math]::Max(0, $double)` resolves to the `(int, int)`
+  overload in PowerShell and truncated the fraction.
+- The Stop hook took ~37 seconds on a large transcript because of `Get-Content -Tail`; it now reads
+  the end of the file directly and finishes in about half a second.
+- The status file is no longer filtered to the open workspace, so the widget can show a session that
+  is running in another project.
+- A failed widget launch is now reported, and every attempt is logged, instead of failing silently.
+
 ## 0.1.0
 
 - Initial release.
@@ -10,12 +49,3 @@
 - Completion notification with duration, tool count and output tokens.
 - Optional live progress notification and completion sound.
 - Duration estimates learned from your own past prompts, per project, refined while a prompt runs.
-- `notificationTarget` setting: native OS desktop notifications (Windows toast, macOS notification
-  centre, `notify-send`) that are visible while VS Code is minimised.
-- `hooks/claude-stop-toast.ps1`: a standalone Claude Code Stop hook that notifies with no VS Code
-  running at all.
-- Always-on-top desktop widget (`Claude Monitor: Open Desktop Widget`, `overlayAutoStart`): live
-  elapsed time, ETA, progress bar and current step in a draggable window that outlives VS Code and
-  falls back to reading transcripts directly when the extension is not running — including the
-  estimate, which it derives from completed turns in the transcripts and from a history file the
-  extension publishes.

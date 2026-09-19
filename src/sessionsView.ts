@@ -5,7 +5,19 @@ import { formatClock, formatDuration, truncate } from './format';
 import { TurnTracker } from './turnTracker';
 import { Session, Step, Turn } from './types';
 
-type Node = SessionNode | StepNode;
+type Node = ActionNode | SessionNode | StepNode;
+
+/** A permanent row at the top of the view, so the widget is reachable without hunting for a button. */
+class ActionNode {
+	readonly kind = 'action';
+	constructor(
+		readonly id: string,
+		readonly label: string,
+		readonly icon: string,
+		readonly command: string,
+		readonly tooltip: string
+	) {}
+}
 
 class SessionNode {
 	readonly kind = 'session';
@@ -37,10 +49,20 @@ export class SessionsView implements vscode.TreeDataProvider<Node>, vscode.Dispo
 
 	getChildren(element?: Node): Node[] {
 		if (!element) {
-			return this.tracker
+			const actions: Node[] = [
+				new ActionNode(
+					'action:overlay',
+					'Open Desktop Widget',
+					'window',
+					'claudePromptMonitor.openOverlay',
+					'Open the always-on-top widget that keeps showing progress outside VS Code'
+				)
+			];
+			const sessions = this.tracker
 				.getSessions()
 				.filter((session) => this.tracker.isInScope(session))
 				.map((session) => new SessionNode(session));
+			return [...actions, ...sessions];
 		}
 		if (element.kind !== 'session') {
 			return [];
@@ -57,6 +79,15 @@ export class SessionsView implements vscode.TreeDataProvider<Node>, vscode.Dispo
 	}
 
 	getTreeItem(node: Node): vscode.TreeItem {
+		if (node.kind === 'action') {
+			const item = new vscode.TreeItem(node.label, vscode.TreeItemCollapsibleState.None);
+			item.id = node.id;
+			item.contextValue = 'action';
+			item.iconPath = new vscode.ThemeIcon(node.icon);
+			item.tooltip = node.tooltip;
+			item.command = { command: node.command, title: node.label };
+			return item;
+		}
 		return node.kind === 'session' ? this.sessionItem(node) : this.stepItem(node);
 	}
 

@@ -76,8 +76,9 @@ The transcript scan runs every 3 seconds rather than on every frame — it costs
 window would stutter otherwise — while the clock keeps ticking every half second from the cached start
 times.
 
-Set `claudePromptMonitor.overlayAutoStart` to open it automatically whenever a prompt starts. Launching
-it twice does nothing: it holds a single-instance lock. Windows only for now.
+Set `claudePromptMonitor.overlayAutoStart` to open it automatically whenever a prompt starts. Only one
+widget ever runs: opening it again brings the existing one to the front instead of starting a second,
+and pulls it back into view if it ended up off-screen. Windows only for now.
 
 ### With VS Code closed entirely
 
@@ -148,6 +149,19 @@ first prompt rather than after a week of use.
 | `claudePromptMonitor.pollIntervalMs` | `800` | How often transcripts are checked for new output. |
 | `claudePromptMonitor.staleTurnMinutes` | `30` | A running turn with no output for this long is treated as abandoned. |
 | `claudePromptMonitor.historySize` | `200` | Completed prompts kept per project for estimating. |
+
+## Shortcuts
+
+The Sessions view title bar carries the things you reach for most: **Open Desktop Widget**, **Timing
+Stats** and **Refresh** as buttons, with **Toggle Completion Notifications**, **Open Session
+Transcript** and **Clear Timing History** under the `...` menu.
+
+| Keys | Does |
+| --- | --- |
+| `Ctrl+Alt+M` (`Cmd+Alt+M`) | Open the desktop widget |
+| `Ctrl+Alt+Shift+M` (`Cmd+Alt+Shift+M`) | Focus the Sessions view |
+
+Rebind either in **Keyboard Shortcuts** (`Ctrl+K Ctrl+S`), searching for "Claude Monitor".
 
 ## Commands
 
