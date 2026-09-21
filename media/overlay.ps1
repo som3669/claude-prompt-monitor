@@ -17,20 +17,28 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# One widget is enough; a second launch just exits. Acquiring the mutex says more than the
-# constructor's createdNew flag, which does not bind reliably through New-Object.
-$mutex = New-Object System.Threading.Mutex($false, 'Local\ClaudePromptMonitorOverlay')
-$owned = $false
-try {
-	$owned = $mutex.WaitOne(0)
-} catch [System.Threading.AbandonedMutexException] {
-	# The previous widget was killed rather than closed; the mutex is ours now.
-	$owned = $true
-}
-
 $stateDir = Split-Path $StatusPath -Parent
 $positionPath = Join-Path $stateDir 'overlay-position.txt'
 $showRequestPath = Join-Path $stateDir 'overlay-show.request'
+$closeRequestPath = Join-Path $stateDir 'overlay-close.request'
+$pidPath = Join-Path $stateDir 'overlay.pid'
+
+# Single instance through a pid file rather than a mutex. A mutex cannot be inspected: when a widget
+# lingered without a window, every later launch silently took the "already running" path with no way
+# to see why. A pid can be checked, and a stale one can be taken over.
+function Test-WidgetAlive {
+	if (-not (Test-Path -LiteralPath $pidPath)) { return $false }
+	try {
+		$recorded = [int]((Get-Content -LiteralPath $pidPath -Raw).Trim([char]0xFEFF, ' ', "`r", "`n"))
+	} catch {
+		return $false
+	}
+	$process = Get-Process -Id $recorded -ErrorAction SilentlyContinue
+	if ($null -eq $process) { return $false }
+	return $process.ProcessName -eq 'powershell'
+}
+
+$owned = -not (Test-WidgetAlive)
 
 if (-not $owned) {
 	# Already running. Rather than exit silently - which makes the button look dead - leave a note the
@@ -43,7 +51,12 @@ if (-not $owned) {
 	}
 	exit 0
 }
-try { Remove-Item -LiteralPath $showRequestPath -Force -ErrorAction SilentlyContinue } catch { }
+try {
+	Remove-Item -LiteralPath $showRequestPath -Force -ErrorAction SilentlyContinue
+	Remove-Item -LiteralPath $closeRequestPath -Force -ErrorAction SilentlyContinue
+	if (-not (Test-Path -LiteralPath $stateDir)) { New-Item -ItemType Directory -Path $stateDir -Force | Out-Null }
+	[System.IO.File]::WriteAllText($pidPath, $PID.ToString())
+} catch { }
 
 # Stale after this long, so a crashed or closed VS Code does not leave a frozen reading on screen.
 $statusMaxAgeMs = 8000
@@ -264,19 +277,39 @@ $form.BackColor = $background
 $form.Size = New-Object System.Drawing.Size(340, 104)
 $form.StartPosition = 'Manual'
 
-$workingArea = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
-# Top-right by default: VS Code stacks its own notifications in the bottom-right corner.
-$location = New-Object System.Drawing.Point(
-	($workingArea.Right - $form.Width - 16),
-	($workingArea.Top + 16)
-)
+# With several monitors the primary one is often not the one being looked at, so the widget follows
+# the screen holding the mouse pointer.
+function Get-TargetArea {
+	$screen = [System.Windows.Forms.Screen]::FromPoint([System.Windows.Forms.Cursor]::Position)
+	if ($null -eq $screen) { $screen = [System.Windows.Forms.Screen]::PrimaryScreen }
+	return $screen.WorkingArea
+}
+
+function Get-DefaultLocation {
+	$area = Get-TargetArea
+	# Top-right: VS Code stacks its own notifications in the bottom-right corner.
+	return New-Object System.Drawing.Point(
+		($area.Right - $form.Width - 16),
+		($area.Top + 16)
+	)
+}
+
+# A remembered spot is only usable if the whole window still lands on a screen that exists: monitors
+# get unplugged, and a window placed off the desktop is indistinguishable from one that never opened.
+function Test-OnScreen([System.Drawing.Rectangle]$bounds) {
+	foreach ($screen in [System.Windows.Forms.Screen]::AllScreens) {
+		if ($screen.WorkingArea.Contains($bounds)) { return $true }
+	}
+	return $false
+}
+
+$location = Get-DefaultLocation
 if (Test-Path -LiteralPath $positionPath) {
 	try {
 		# Trim any byte-order mark left by older versions, which otherwise breaks the cast.
 		$saved = (Get-Content -LiteralPath $positionPath -Raw).Trim([char]0xFEFF, ' ', "`r", "`n").Split(',')
-		$candidate = New-Object System.Drawing.Point([int]$saved[0], [int]$saved[1])
-		# Ignore a position from a monitor layout that no longer exists.
-		if ($workingArea.Contains($candidate)) { $location = $candidate }
+		$candidate = New-Object System.Drawing.Rectangle ([int]$saved[0]), ([int]$saved[1]), $form.Width, $form.Height
+		if (Test-OnScreen $candidate) { $location = New-Object System.Drawing.Point $candidate.X, $candidate.Y }
 	} catch {
 		# fall back to the default corner
 	}
@@ -450,11 +483,7 @@ function Update-Widget {
 # Asking for the widget again means "where is it?", so it always lands in the same known corner and
 # flashes, rather than quietly coming to the front wherever it happened to be left.
 function Show-Widget {
-	$workingArea = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
-	$form.Location = New-Object System.Drawing.Point(
-		($workingArea.Right - $form.Width - 16),
-		($workingArea.Top + 16)
-	)
+	$form.Location = Get-DefaultLocation
 	$form.WindowState = 'Normal'
 	$form.Show()
 	$form.TopMost = $true
@@ -482,6 +511,11 @@ $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 500
 $timer.Add_Tick({
 	try {
+		if (Test-Path -LiteralPath $closeRequestPath) {
+			Remove-Item -LiteralPath $closeRequestPath -Force -ErrorAction SilentlyContinue
+			$form.Close()
+			return
+		}
 		if (Test-Path -LiteralPath $showRequestPath) {
 			Remove-Item -LiteralPath $showRequestPath -Force -ErrorAction SilentlyContinue
 			Show-Widget
@@ -500,10 +534,15 @@ $form.Add_Shown({
 $form.Add_FormClosing({
 	$timer.Stop()
 	try {
+		if (Test-Path -LiteralPath $pidPath) {
+			$recorded = (Get-Content -LiteralPath $pidPath -Raw).Trim([char]0xFEFF, ' ', "`r", "`n")
+			if ($recorded -eq $PID.ToString()) { Remove-Item -LiteralPath $pidPath -Force -ErrorAction SilentlyContinue }
+		}
+	} catch { }
+	try {
 		if (-not (Test-Path -LiteralPath $stateDir)) { New-Item -ItemType Directory -Path $stateDir -Force | Out-Null }
 		[System.IO.File]::WriteAllText($positionPath, ('{0},{1}' -f $form.Location.X, $form.Location.Y))
 	} catch { }
 })
 
 [void][System.Windows.Forms.Application]::Run($form)
-$mutex.ReleaseMutex()

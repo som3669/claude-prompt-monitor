@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { ControlsView } from './controlsView';
@@ -31,7 +32,10 @@ export function activate(context: vscode.ExtensionContext): void {
 
 	context.subscriptions.push(
 		vscode.window.createTreeView('claudePromptMonitor.sessions', { treeDataProvider: view }),
-		vscode.window.registerWebviewViewProvider(ControlsView.viewType, new ControlsView())
+		vscode.window.registerWebviewViewProvider(
+			ControlsView.viewType,
+			new ControlsView(() => statusFile.isOverlayRunning())
+		)
 	);
 
 	let watcher: TranscriptWatcher | undefined;
@@ -115,6 +119,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			vscode.commands.executeCommand('claudePromptMonitor.sessions.focus')
 		),
 		vscode.commands.registerCommand('claudePromptMonitor.openOverlay', () => statusFile.openOverlay()),
+		vscode.commands.registerCommand('claudePromptMonitor.toggleOverlay', () => statusFile.toggleOverlay()),
 		vscode.commands.registerCommand('claudePromptMonitor.refresh', () => {
 			watcher?.poll();
 			tracker.sweep();
@@ -164,7 +169,49 @@ export function activate(context: vscode.ExtensionContext): void {
 	);
 
 	context.subscriptions.push({ dispose: () => watcher?.dispose() });
+	watchForNewerBuild(context, output);
 	start();
+}
+
+/**
+ * A VS Code window keeps running the build it started with, so installing a new version changes the
+ * files on disk while the window carries on with the old code - silently, which is very confusing when
+ * a fix does not appear to take. This notices and offers the reload.
+ */
+function watchForNewerBuild(context: vscode.ExtensionContext, output: vscode.OutputChannel): void {
+	const manifest = path.join(context.extensionPath, 'package.json');
+	const versionOnDisk = (): string | undefined => {
+		try {
+			return JSON.parse(fs.readFileSync(manifest, 'utf8')).version as string;
+		} catch {
+			return undefined;
+		}
+	};
+
+	const running = versionOnDisk();
+	if (!running) {
+		return;
+	}
+	let prompted = false;
+	const timer = setInterval(() => {
+		const current = versionOnDisk();
+		if (prompted || !current || current === running) {
+			return;
+		}
+		prompted = true;
+		output.appendLine(`Installed build is now ${current}; this window is running ${running}.`);
+		void vscode.window
+			.showInformationMessage(
+				`Claude Prompt Monitor ${current} is installed, but this window is still running ${running}.`,
+				'Reload Window'
+			)
+			.then((choice) => {
+				if (choice === 'Reload Window') {
+					void vscode.commands.executeCommand('workbench.action.reloadWindow');
+				}
+			});
+	}, 30_000);
+	context.subscriptions.push({ dispose: () => clearInterval(timer) });
 }
 
 export function deactivate(): void {

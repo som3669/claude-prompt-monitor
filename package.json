@@ -65,6 +65,11 @@
         "icon": "$(window)"
       },
       {
+        "command": "claudePromptMonitor.toggleOverlay",
+        "title": "Claude Monitor: Toggle Desktop Widget",
+        "icon": "$(window)"
+      },
+      {
         "command": "claudePromptMonitor.toggleNotifications",
         "title": "Claude Monitor: Toggle Completion Notifications",
         "icon": "$(bell)"
@@ -97,7 +102,7 @@
     ],
     "keybindings": [
       {
-        "command": "claudePromptMonitor.openOverlay",
+        "command": "claudePromptMonitor.toggleOverlay",
         "key": "ctrl+alt+m",
         "mac": "cmd+alt+m"
       },
@@ -110,7 +115,7 @@
     "menus": {
       "view/title": [
         {
-          "command": "claudePromptMonitor.openOverlay",
+          "command": "claudePromptMonitor.toggleOverlay",
           "when": "view == claudePromptMonitor.sessions",
           "group": "navigation@1"
         },

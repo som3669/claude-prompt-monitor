@@ -10,15 +10,32 @@ import * as vscode from 'vscode';
 export class ControlsView implements vscode.WebviewViewProvider {
 	static readonly viewType = 'claudePromptMonitor.controls';
 
+	constructor(private readonly isOverlayRunning: () => boolean) {}
+
 	resolveWebviewView(view: vscode.WebviewView): void {
 		view.webview.options = { enableScripts: true };
 		view.webview.html = this.html(view.webview);
 
-		view.webview.onDidReceiveMessage((message: { command?: string }) => {
+		const postState = () => {
+			void view.webview.postMessage({ running: this.isOverlayRunning() });
+		};
+
+		view.webview.onDidReceiveMessage(async (message: { command?: string }) => {
 			if (typeof message?.command === 'string') {
-				void vscode.commands.executeCommand(message.command);
+				await vscode.commands.executeCommand(message.command);
+				// The widget takes a moment to appear or to act on a close request.
+				setTimeout(postState, 1200);
 			}
 		});
+
+		// The widget can also be closed from its own x, so the label follows the real state.
+		const poll = setInterval(() => {
+			if (view.visible) {
+				postState();
+			}
+		}, 2000);
+		view.onDidDispose(() => clearInterval(poll));
+		postState();
 	}
 
 	private html(webview: vscode.Webview): string {
@@ -80,13 +97,18 @@ export class ControlsView implements vscode.WebviewViewProvider {
 </style>
 </head>
 <body>
-	<button class="primary" id="open">Open Desktop Widget</button>
+	<button class="primary" id="toggle">Open Desktop Widget</button>
 	<button class="secondary" id="stats">Timing Stats</button>
 	<p>The widget floats above other windows and keeps showing progress while VS Code is minimised.</p>
 	<script nonce="${nonce}">
 		const vscode = acquireVsCodeApi();
-		document.getElementById('open').addEventListener('click', () => {
-			vscode.postMessage({ command: 'claudePromptMonitor.openOverlay' });
+		const toggle = document.getElementById('toggle');
+		toggle.addEventListener('click', () => {
+			vscode.postMessage({ command: 'claudePromptMonitor.toggleOverlay' });
+		});
+		window.addEventListener('message', (event) => {
+			const running = !!(event.data && event.data.running);
+			toggle.textContent = running ? 'Close Desktop Widget' : 'Open Desktop Widget';
 		});
 		document.getElementById('stats').addEventListener('click', () => {
 			vscode.postMessage({ command: 'claudePromptMonitor.showStats' });

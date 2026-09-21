@@ -1,5 +1,28 @@
 # Change Log
 
+## Unreleased
+
+### Added
+
+- The desktop widget button is a toggle: it opens the widget, closes it when it is already up, and
+  relabels itself to match. The title bar icon and `Ctrl+Alt+M` toggle as well.
+
+### Fixed
+
+- The widget never opened from the button. The launch passed `detached: true`, which on Windows means
+  DETACHED_PROCESS: the child gets no console and `powershell.exe` exits immediately with code 0.
+  Every click spawned a process that died in about 70ms. It now launches without that flag, from the
+  absolute System32 path, and still outlives VS Code.
+- Placement ignored multi-monitor setups: the widget was positioned against the primary screen and a
+  remembered position was only checked against that screen's bounds, so it could land on a monitor you
+  were not looking at. It now follows the screen holding the mouse pointer, and a saved position is
+  reused only when the whole window still fits on a screen that exists.
+- The single-instance lock was an unnamed mutex that nothing could inspect. A widget that lingered
+  without a window made every later launch fail silently. It is now a pid file: the owner can be
+  checked, and a stale one is taken over.
+- A failed launch is reported and logged rather than failing silently, and the extension notices when a
+  newer build has been installed than the one the window is running, offering a reload.
+
 ## 0.1.1
 
 ### Added

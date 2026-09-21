@@ -7,6 +7,12 @@ import { Estimator } from './estimator';
 import { claudeHome } from './transcriptWatcher';
 import { TurnTracker } from './turnTracker';
 
+/** The absolute path, so a shadowed `powershell` on PATH cannot change what gets launched. */
+function powershellPath(): string {
+	const root = process.env.SystemRoot || 'C:\\Windows';
+	return path.join(root, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+}
+
 /**
  * Publishes the current state to a small JSON file and launches the desktop widget that reads it.
  *
@@ -94,6 +100,41 @@ export class StatusFile implements vscode.Disposable {
 		}
 	}
 
+	get pidFile(): string {
+		return path.join(this.directory, 'overlay.pid');
+	}
+
+	/** True when a widget process recorded in the pid file is still alive. */
+	isOverlayRunning(): boolean {
+		try {
+			const recorded = Number(fs.readFileSync(this.pidFile, 'utf8').trim());
+			if (!Number.isInteger(recorded) || recorded <= 0) {
+				return false;
+			}
+			// Signal 0 tests for existence without touching the process.
+			process.kill(recorded, 0);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	/** Opens the widget, or closes it if it is already up. */
+	toggleOverlay(): void {
+		if (!this.isOverlayRunning()) {
+			this.openOverlay();
+			return;
+		}
+		try {
+			fs.writeFileSync(path.join(this.directory, 'overlay-close.request'), new Date().toISOString(), 'utf8');
+			this.log('close requested');
+			void vscode.window.setStatusBarMessage('$(window) Claude desktop widget closed', 3000);
+		} catch (error) {
+			this.log(`close request failed: ${String(error)}`);
+			void vscode.window.showErrorMessage(`Could not close the desktop widget: ${String(error)}`);
+		}
+	}
+
 	get diagnosticsFile(): string {
 		return path.join(this.directory, 'open-overlay.log');
 	}
@@ -143,7 +184,10 @@ export class StatusFile implements vscode.Disposable {
 		try {
 			// stderr is kept rather than discarded: a PowerShell that refuses to start used to fail in
 			// complete silence, which is indistinguishable from a dead button.
-			const child = spawn('powershell', args, { detached: true, stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
+			// No `detached`: on Windows that means DETACHED_PROCESS, so the child gets no console at all
+			// and powershell.exe exits immediately with code 0 - the widget appeared to never start.
+			// Without it the process still outlives this one, which is what the widget needs.
+			const child = spawn(powershellPath(), args, { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
 			this.log(`spawned pid=${child.pid ?? 'none'} script=${script}`);
 
 			let stderr = '';
