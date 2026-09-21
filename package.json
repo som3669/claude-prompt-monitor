@@ -2,7 +2,7 @@
   "name": "somshrestha-claude-prompt-monitor",
   "displayName": "Claude Prompt Monitor",
   "description": "Tracks every Claude Code prompt — live progress, elapsed time, estimated time to completion, and a notification the moment the prompt finishes. Works for both the Claude Code VS Code extension and terminal sessions.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "somshrestha",
   "license": "MIT",
   "icon": "icon.png",
