@@ -185,6 +185,12 @@ code --install-extension somshrestha-claude-prompt-monitor-0.1.0.vsix
 
 Press `F5` in this folder to run it in an Extension Development Host instead.
 
+## Working on it
+
+`docs/NOTES.md` has the development notes: setup on a new machine, the release steps, and the traps
+that cost the most time (a VS Code window keeps running the build it started with; `detached: true`
+kills GUI child processes on Windows).
+
 ## Limits worth knowing
 
 - A prompt is considered finished when Claude's reply ends its turn. If you interrupt a prompt, the turn
