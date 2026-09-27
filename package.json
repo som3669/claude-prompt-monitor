@@ -1,8 +1,8 @@
 {
   "name": "somshrestha-claude-prompt-monitor",
   "displayName": "Claude Prompt Monitor",
-  "description": "Tracks every Claude Code prompt — live progress, elapsed time, estimated time to completion, and a notification the moment the prompt finishes. Works for both the Claude Code VS Code extension and terminal sessions.",
-  "version": "0.1.2",
+  "description": "Know the moment Claude Code needs you or is done. Tracks every prompt — live progress, ETA, questions and permission prompts waiting on you, background agents, usage limits, and exactly what each prompt changed. Works for the Claude Code VS Code extension and terminal sessions.",
+  "version": "0.1.3",
   "publisher": "somshrestha",
   "license": "MIT",
   "icon": "icon.png",
@@ -25,7 +25,9 @@
     "anthropic",
     "notification",
     "progress",
-    "eta"
+    "eta",
+    "agents",
+    "monitor"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -44,8 +46,8 @@
     "views": {
       "claudePromptMonitor": [
         {
-          "id": "claudePromptMonitor.controls",
-          "name": "Widget",
+          "id": "claudePromptMonitor.dashboard",
+          "name": "Monitor",
           "type": "webview"
         },
         {
@@ -55,6 +57,11 @@
       ]
     },
     "commands": [
+      {
+        "command": "claudePromptMonitor.showDashboard",
+        "title": "Claude Monitor: Show Monitor",
+        "icon": "$(dashboard)"
+      },
       {
         "command": "claudePromptMonitor.showPanel",
         "title": "Claude Monitor: Show Sessions"
@@ -70,14 +77,36 @@
         "icon": "$(window)"
       },
       {
+        "command": "claudePromptMonitor.reviewChanges",
+        "title": "Claude Monitor: Review Changes from the Last Prompt",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "claudePromptMonitor.focusClaude",
+        "title": "Claude Monitor: Go to Claude",
+        "icon": "$(comment-discussion)"
+      },
+      {
         "command": "claudePromptMonitor.toggleNotifications",
         "title": "Claude Monitor: Toggle Completion Notifications",
         "icon": "$(bell)"
       },
       {
+        "command": "claudePromptMonitor.installHooks",
+        "title": "Claude Monitor: Install Permission Alert Hook"
+      },
+      {
+        "command": "claudePromptMonitor.uninstallHooks",
+        "title": "Claude Monitor: Remove Permission Alert Hook"
+      },
+      {
         "command": "claudePromptMonitor.clearHistory",
         "title": "Claude Monitor: Clear Timing History",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "claudePromptMonitor.clearRecent",
+        "title": "Claude Monitor: Clear Recent Prompts"
       },
       {
         "command": "claudePromptMonitor.showStats",
@@ -89,6 +118,14 @@
         "title": "Claude Monitor: Open Session Transcript"
       },
       {
+        "command": "claudePromptMonitor.copyPrompt",
+        "title": "Claude Monitor: Copy Prompt"
+      },
+      {
+        "command": "claudePromptMonitor.openFileChange",
+        "title": "Claude Monitor: Compare File with Before"
+      },
+      {
         "command": "claudePromptMonitor.refresh",
         "title": "Claude Monitor: Refresh",
         "icon": "$(refresh)"
@@ -97,7 +134,7 @@
     "viewsWelcome": [
       {
         "view": "claudePromptMonitor.sessions",
-        "contents": "No Claude sessions seen yet.\n[Open Desktop Widget](command:claudePromptMonitor.openOverlay)\nThe widget floats above other windows and keeps showing progress when VS Code is minimised."
+        "contents": "No Claude sessions seen yet. Send Claude Code a prompt and it shows up here, step by step."
       }
     ],
     "keybindings": [
@@ -107,7 +144,7 @@
         "mac": "cmd+alt+m"
       },
       {
-        "command": "claudePromptMonitor.showPanel",
+        "command": "claudePromptMonitor.showDashboard",
         "key": "ctrl+alt+shift+m",
         "mac": "cmd+alt+shift+m"
       }
@@ -115,7 +152,7 @@
     "menus": {
       "view/title": [
         {
-          "command": "claudePromptMonitor.toggleOverlay",
+          "command": "claudePromptMonitor.reviewChanges",
           "when": "view == claudePromptMonitor.sessions",
           "group": "navigation@1"
         },
@@ -130,6 +167,11 @@
           "group": "navigation@3"
         },
         {
+          "command": "claudePromptMonitor.toggleOverlay",
+          "when": "view == claudePromptMonitor.dashboard && isWindows",
+          "group": "navigation@1"
+        },
+        {
           "command": "claudePromptMonitor.toggleNotifications",
           "when": "view == claudePromptMonitor.sessions",
           "group": "1_settings@1"
@@ -140,15 +182,46 @@
           "group": "1_settings@2"
         },
         {
+          "command": "claudePromptMonitor.installHooks",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "1_settings@3"
+        },
+        {
           "command": "claudePromptMonitor.clearHistory",
           "when": "view == claudePromptMonitor.sessions",
           "group": "9_reset@1"
+        },
+        {
+          "command": "claudePromptMonitor.clearRecent",
+          "when": "view == claudePromptMonitor.sessions",
+          "group": "9_reset@2"
         }
       ],
       "view/item/context": [
         {
+          "command": "claudePromptMonitor.reviewChanges",
+          "when": "view == claudePromptMonitor.sessions && viewItem == session",
+          "group": "inline"
+        },
+        {
+          "command": "claudePromptMonitor.focusClaude",
+          "when": "view == claudePromptMonitor.sessions && viewItem == session",
+          "group": "navigation@1"
+        },
+        {
           "command": "claudePromptMonitor.openTranscript",
-          "when": "view == claudePromptMonitor.sessions && viewItem == session"
+          "when": "view == claudePromptMonitor.sessions && viewItem == session",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "claudePromptMonitor.copyPrompt",
+          "when": "false"
+        },
+        {
+          "command": "claudePromptMonitor.openFileChange",
+          "when": "false"
         }
       ]
     },
@@ -172,17 +245,27 @@
         "claudePromptMonitor.notifyOnComplete": {
           "type": "boolean",
           "default": true,
-          "description": "Show a notification when a prompt finishes."
+          "description": "Show a notification when a prompt finishes, stops with an error, or hits a usage limit."
+        },
+        "claudePromptMonitor.notifyOnWaiting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Notify the moment Claude is blocked on you: a question (AskUserQuestion), a plan to approve, or — with the permission alert hook installed — a permission prompt."
+        },
+        "claudePromptMonitor.notifyOnLimitReset": {
+          "type": "boolean",
+          "default": true,
+          "description": "When a prompt hits a usage limit that has a reset time, notify again when the limit resets."
         },
         "claudePromptMonitor.notifyMinDurationSeconds": {
           "type": "number",
           "default": 15,
-          "description": "Skip the completion notification for prompts that finish faster than this."
+          "description": "Skip the completion notification for prompts that finish successfully faster than this. Errors and limits are always reported."
         },
         "claudePromptMonitor.notifyOnlyWhenUnfocused": {
           "type": "boolean",
           "default": false,
-          "description": "Only notify when the VS Code window is not focused."
+          "description": "Only notify when the VS Code window is not focused. Applies to all notifications."
         },
         "claudePromptMonitor.notificationTarget": {
           "type": "string",
@@ -202,12 +285,12 @@
         "claudePromptMonitor.overlayAutoStart": {
           "type": "boolean",
           "default": false,
-          "description": "Open the always-on-top desktop widget automatically whenever a prompt starts. Windows only. The widget runs as its own process and stays open until you close it, including after VS Code is closed."
+          "description": "Open the always-on-top desktop widget automatically whenever a prompt starts or Claude starts waiting on you. Windows only. The widget runs as its own process and stays open until you close it, including after VS Code is closed."
         },
         "claudePromptMonitor.playSound": {
           "type": "boolean",
           "default": false,
-          "description": "Play a short system sound when a prompt finishes."
+          "description": "Play a short system sound when a prompt finishes or Claude starts waiting on you."
         },
         "claudePromptMonitor.showProgressNotification": {
           "type": "boolean",
@@ -232,7 +315,7 @@
         "claudePromptMonitor.staleTurnMinutes": {
           "type": "number",
           "default": 30,
-          "description": "A running turn with no new transcript output for this long is treated as abandoned."
+          "description": "A running turn with no new transcript output for this long is treated as abandoned. A turn waiting on you never goes stale. Transcripts written within this window are also replayed after a window reload, so a running prompt is picked up."
         },
         "claudePromptMonitor.historySize": {
           "type": "number",
@@ -246,7 +329,8 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "npx @vscode/vsce@2.32.0 package"
+    "package": "npx @vscode/vsce@2.32.0 package",
+    "test": "npm run compile && node test/scenarios.js && node test/replay.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

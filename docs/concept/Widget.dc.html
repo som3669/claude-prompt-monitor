@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desktop widget states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#e8e6e1;background:#2a2e35}
+a{color:#4daafc}a:hover{color:#7cc0ff}
+</style>
+</helmet>
+<div style="width: 1000px; height: 640px; box-sizing: border-box; padding: 40px 48px; color: #e8e6e1; background: #2a2e35; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">Desktop widget — above every window, even with VS Code closed</h2>
+<p style="margin: 0; font-size: 15px; color: #b9b7b1">The most urgent session first, a colour strip for the state, and the last result kept on screen for three minutes after a prompt ends.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 48px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #d97757"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">ai_patro · Release 1.4 build</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">1:23 / ~3:16   12 tools   3/7 tasks</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 131px; height: 4px; background: #d97757"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">Bash 0:42 - flutter build appbundle --release</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Working</span> — ETA, tools, tasks, and how long the current command has run</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 0 0 2px #eab308, 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #eab308"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Needs you · ai_patro · Release 1.…  +1 more</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #e4e4e7">Commit the language fix only, or both commits?</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #eab308"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">waiting 2:14   ·   the clock is paused</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Needs you</span> — jumps ahead of the running session and flashes once per new question</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #7d8caa"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">car · Admin redesign</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">7:40   reply done · 2 agents working</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #7d8caa"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">enhance all admin page</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Agents</span> — not “done” until the background agents report back</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #22c55e"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Done · car</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">4m 12s   ·   6 files +120 −14   ·   23 tools</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #22c55e"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">All 13 admin pages are redesigned in the same style as…</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Done</span> — Claude’s closing line, for three minutes after the prompt ends</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #ef4444"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Stopped · mas</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">5m 46s   ·   0 tools</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #ef4444"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">Anthropic's API was overloaded — try again in a moment.</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Stopped</span> — the reason, in words you can act on</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #2d2d32"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Claude is idle</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">Usage limit · resets at 12:25 PM</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"></div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Idle</span> — with any usage limit still in force</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1000,"height":640}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

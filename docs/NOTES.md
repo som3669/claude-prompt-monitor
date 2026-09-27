@@ -46,6 +46,61 @@ Node maps `detached` to `DETACHED_PROCESS` on Windows, so the child gets no cons
 Spawn with `windowsHide: true` and `stdio: 'ignore'` and no `detached`. The child still outlives the
 parent, which is what the widget needs.
 
+The same flag also broke the native toast and the completion sound, unnoticed until 2026-09-27: a probe
+spawned exactly as `notifier.ts` did exited after 77ms and never ran its script, while the same spawn
+without `detached` ran to completion. Any PowerShell child, GUI or not, needs the plain spawn. Use
+`powershellPath()` from `src/platform.ts` for the absolute path.
+
+## Testing
+
+`npm test` compiles, then runs `test/scenarios.js` (hand-written cases for paths real transcripts rarely
+hit: hook permission waits, plan approval, background hand-backs, usage limits) and `test/replay.js`,
+which replays every transcript on the machine through the tracker and prints a summary. `node
+test/replay.js <session-id>` traces one session turn by turn. Both load `test/vscode-stub.js`, a
+stand-in for the `vscode` module, so they run under plain Node.
+
+When changing the state machine, compare the replay summary before and after. On this machine
+(2026-09-27, ~2,600 human turns) it was: done 2427, interrupted 165, error 56, limited 12, abandoned 20;
+104 question waits, median 46s; 16 turns held open for background agents.
+
+## Transcript facts the tracker relies on
+
+Checked against the real transcripts in September 2026 (Claude Code 2.1.2xx). Re-check them when a
+Claude Code update makes the numbers above move.
+
+- **Interrupts** are a `user` entry whose text starts `[Request interrupted by user` (`… for tool use]`
+  when a tool call was rejected). About 6% of prompts end this way. The same marker also appears
+  *after* `end_turn` when the next message cancels a still-running Stop hook, so a marker with no open
+  turn, or during the background phase, is not an interrupt.
+- **Waiting on the user**: `AskUserQuestion` and `ExitPlanMode` tool calls stay open until the answer
+  arrives as their `tool_result` (median 46s, p90 6 min, max 35 min — so a waiting turn must never be
+  swept as stale). A permission prompt writes nothing until answered; only the Notification hook
+  (`notification_type: permission_prompt`) reports it. The hook does fire for the VS Code extension.
+- **Usage limits** are an assistant entry with `isApiErrorMessage: true`, `error: "rate_limit"` and
+  `quotaLimits.resetsAt` (Unix seconds). Other API failures are `isApiErrorMessage` with the reason in the
+  text ("Failed to authenticate…", "529 Overloaded", "Prompt is too long"). Retries in progress are
+  `system` entries with `subtype: "api_error"`, `retryAttempt`, `maxRetries`, `retryInMs`.
+- **One entry per content block**: an assistant message with thinking + text + tool call is written as
+  three entries with the same `message.id`, each carrying the whole message's `usage`. Count usage once
+  per id (0.1.x counted it ~1.8× over).
+- **Agents** write their own transcripts to `<project>/<session>/subagents/agent-<id>.jsonl`, entries
+  `isSidechain: true` with `agentId`, plus `agent-<id>.meta.json` (`agentType`, `description`,
+  `toolUseId`, `requestShape: "background"`). A background launch returns at once
+  (`toolUseResult.isAsync: true`, `agentId`); the agent's transcript ends with its own `end_turn`, and
+  its report reaches the parent ~30s later as a `user` entry with `origin.kind: "peer"` containing
+  `<agent-message from="<agentId>">` — minutes later behind a slow Stop hook. Some reports never
+  arrive, hence the 3-minute grace in `HANDBACK_GRACE_MS`.
+- **Background tasks** report back as `origin.kind: "task-notification"` with `<task-id>`,
+  `<status>`, `<summary>`. On resume, stale ones are often folded into the next prompt and never
+  answered, so a notification only becomes a turn when Claude replies to it.
+- **File history**: before Claude's first edit of a file in a turn, Claude Code writes a
+  `file-history-delta` entry (no `sessionId`; take it from the file name) whose `backup.backupFileName`
+  names the pre-edit copy in `~/.claude/file-history/<session>/`; `null` means the file was new. The
+  backup is the true before-state. `toolUseResult.originalFile` on Edit results is capped at 10,000
+  characters (empty for big files), so it is not.
+- `ai-title` / `custom-title` entries carry the conversation's title; `queue-operation` entries
+  (enqueue/dequeue/remove) track prompts typed while Claude was busy.
+
 ## Verifying the widget
 
 Counting processes by command line is unreliable in two ways, and both produced false results while

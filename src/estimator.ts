@@ -1,3 +1,4 @@
+import { activeMs } from './turnTracker';
 import { HistoryRecord, Turn } from './types';
 
 const STORAGE_KEY = 'claudePromptMonitor.history.v1';
@@ -9,10 +10,12 @@ export interface Storage {
 }
 
 export interface Estimate {
-	/** Predicted total duration of the turn, in milliseconds. */
+	/** Predicted time Claude will spend on the turn, excluding time spent waiting on the user. */
 	totalMs: number;
 	/** Predicted time left, never negative. */
 	remainingMs: number;
+	/** Wall-clock total: time since the prompt was sent plus the time left. What the clock should show. */
+	wallTotalMs: number;
 	/** 0..1, clamped so a running turn never shows as complete. */
 	progress: number;
 	/** False when there was too little history and the number is a rough fallback. */
@@ -24,12 +27,16 @@ export interface Estimate {
  *
  * While a turn runs the estimate is re-conditioned on what has happened so far: elapsed time rules
  * out the quick outcomes, and the tool count rules out the samples that finished with less work.
+ * Time spent blocked on the user — answering a question, approving a plan — is not Claude's time,
+ * so it is left out of both the history and the running clock.
  */
 export class Estimator {
 	private history: HistoryRecord[] = [];
+	private keys = new Set<string>();
 
 	constructor(private readonly storage: Storage, private readonly limitPerProject: () => number) {
 		this.history = storage.get<HistoryRecord[]>(STORAGE_KEY) ?? [];
+		this.reindex();
 	}
 
 	get size(): number {
@@ -42,30 +49,22 @@ export class Estimator {
 	}
 
 	record(turn: Turn): void {
-		if (turn.status !== 'done' || !turn.endedAt) {
+		// Only prompts a person sent: a background hand-back says nothing about how long a prompt takes.
+		if (turn.status !== 'done' || !turn.endedAt || turn.trigger !== 'human') {
 			return;
 		}
-		const durationMs = turn.endedAt - turn.startedAt;
-		if (durationMs < 1000) {
-			return; // instant replies say nothing useful about the next prompt
+		if (this.add(toRecord(turn))) {
+			this.prune();
+			void this.storage.update(STORAGE_KEY, this.history);
 		}
-		this.history.push({
-			project: turn.project,
-			durationMs,
-			toolCount: turn.toolCount,
-			promptChars: turn.prompt.length,
-			finishedAt: turn.endedAt
-		});
-		this.prune();
-		void this.storage.update(STORAGE_KEY, this.history);
 	}
 
-	/** Adds a record discovered by replaying old transcripts, without re-saving on every row. */
+	/**
+	 * Adds a record discovered by replaying old transcripts, without re-saving on every row. The same
+	 * transcripts are replayed on every start, so a record already held is skipped.
+	 */
 	seed(record: HistoryRecord): void {
-		if (record.durationMs < 1000) {
-			return;
-		}
-		this.history.push(record);
+		this.add(record);
 	}
 
 	flushSeed(): void {
@@ -75,6 +74,7 @@ export class Estimator {
 
 	clear(): void {
 		this.history = [];
+		this.keys.clear();
 		void this.storage.update(STORAGE_KEY, this.history);
 	}
 
@@ -97,17 +97,22 @@ export class Estimator {
 
 	/** The live estimate, refined from elapsed time and the work done so far. */
 	current(turn: Turn, now: number): Estimate {
-		const elapsed = Math.max(0, now - turn.startedAt);
+		const elapsed = activeMs(turn, now);
+		const wallElapsed = Math.max(0, now - turn.startedAt);
 		const samples = this.matching(turn.project, turn.prompt.length, turn.toolCount).sort((a, b) => a - b);
+		const build = (total: number, cap: number, confident: boolean): Estimate => {
+			const remainingMs = Math.max(0, total - elapsed);
+			return {
+				totalMs: total,
+				remainingMs,
+				wallTotalMs: wallElapsed + remainingMs,
+				progress: clamp(elapsed / total, 0, cap),
+				confident
+			};
+		};
 
 		if (samples.length < MIN_SAMPLES) {
-			const fallback = Math.max(turn.initialEstimateMs ?? 0, elapsed * 1.5, 30_000);
-			return {
-				totalMs: fallback,
-				remainingMs: Math.max(0, fallback - elapsed),
-				progress: clamp(elapsed / fallback, 0, 0.95),
-				confident: false
-			};
+			return build(Math.max(turn.initialEstimateMs ?? 0, elapsed * 1.5, 30_000), 0.95, false);
 		}
 
 		// Walk up the quantiles until one is still ahead of where we already are.
@@ -119,20 +124,36 @@ export class Estimator {
 			}
 		}
 		if (total <= elapsed * 1.05) {
-			total = elapsed * 1.25; // past everything we have on record
-			return {
-				totalMs: total,
-				remainingMs: Math.max(0, total - elapsed),
-				progress: clamp(elapsed / total, 0, 0.9),
-				confident: false
-			};
+			return build(elapsed * 1.25, 0.9, false); // past everything we have on record
 		}
-		return {
-			totalMs: total,
-			remainingMs: Math.max(0, total - elapsed),
-			progress: clamp(elapsed / total, 0, 0.95),
-			confident: true
-		};
+		return build(total, 0.95, true);
+	}
+
+	private add(record: HistoryRecord): boolean {
+		if (record.durationMs < 1000) {
+			return false; // instant replies say nothing useful about the next prompt
+		}
+		const key = recordKey(record);
+		if (this.keys.has(key)) {
+			return false;
+		}
+		this.keys.add(key);
+		this.history.push(record);
+		return true;
+	}
+
+	private reindex(): void {
+		// Older builds re-seeded the same transcripts on every start; drop the duplicates they left.
+		const seen = new Set<string>();
+		this.history = this.history.filter((record) => {
+			const key = recordKey(record);
+			if (seen.has(key)) {
+				return false;
+			}
+			seen.add(key);
+			return true;
+		});
+		this.keys = seen;
 	}
 
 	private samplesFor(project: string | undefined): HistoryRecord[] {
@@ -171,7 +192,22 @@ export class Estimator {
 			kept.push(...list.slice(-limit));
 		}
 		this.history = kept.sort((a, b) => a.finishedAt - b.finishedAt);
+		this.keys = new Set(this.history.map(recordKey));
 	}
+}
+
+export function toRecord(turn: Turn): HistoryRecord {
+	return {
+		project: turn.project,
+		durationMs: activeMs(turn),
+		toolCount: turn.toolCount,
+		promptChars: turn.prompt.length,
+		finishedAt: turn.endedAt ?? turn.startedAt
+	};
+}
+
+function recordKey(record: HistoryRecord): string {
+	return `${record.project}|${record.finishedAt}`;
 }
 
 function quantile(sorted: number[], q: number): number {

@@ -1,9 +1,10 @@
 # Claude Prompt Monitor
 
-VS Code extension that tracks every Claude Code prompt (VS Code extension and terminal sessions, any cwd): live progress, elapsed time, ETA learned from past prompts, completion notifications, and an always-on-top desktop widget that outlives VS Code.
+VS Code extension that tracks every Claude Code prompt (VS Code extension and terminal sessions, any cwd): live progress, ETA learned from past prompts, when Claude is waiting on you (questions, plan approval, permission prompts via an opt-in hook), background agents, retries and usage limits, completion notifications with what changed, per-prompt diffs, a Monitor panel, and an always-on-top desktop widget that outlives VS Code.
 
 - Id `somshrestha.somshrestha-claude-prompt-monitor`, MIT. Own repo: https://github.com/som3669/claude-prompt-monitor (not the parent vs-code-extenstion-setup repo).
-- Current: v0.1.2 (released 2026-09-21; tags v0.1.0, v0.1.1, v0.1.2). Distributed as GitHub release `.vsix` only, not on the Marketplace.
+- Last published release: v0.1.2 (2026-09-21; tags v0.1.0, v0.1.1, v0.1.2). Distributed as GitHub release `.vsix` only, not on the Marketplace.
+- v0.1.3 prepared 2026-09-27 (version chosen by Som): the Monitor panel, needs-you states, hook, agents, per-prompt diffs, and fixes for native toasts, interrupts and token counts. Bumped, CHANGELOG moved, `.vsix` built, installed into the Som profile and committed locally; push, tag `v0.1.3` and `gh release create` still to do (steps 4-5 below).
 - Durable dev notes also live in `docs/NOTES.md` (travels with a clone). Keep both in sync.
 
 ## Stack / how it works
@@ -11,18 +12,24 @@ TypeScript, no runtime deps. Tails `~/.claude/projects/**/*.jsonl` (setting `cla
 Publishes `status.json`, `history.json`, `overlay.pid` to `%TEMP%\claude-prompt-monitor\` for the widget. The widget (`media/overlay.ps1`) can also read transcripts itself when VS Code is closed.
 
 ## Key files
-- `src/extension.ts` entry; `transcriptWatcher.ts`, `turnTracker.ts`, `estimator.ts` (ETA), `statusBar.ts`, `notifier.ts`, `sessionsView.ts`, `controlsView.ts` (Widget webview panel), `statusFile.ts` (status/history files, widget spawn + pid lock)
-- `media/overlay.ps1` desktop widget; `media/toast.ps1` native Windows toast
+- `src/extension.ts` entry and command wiring
+- `turnTracker.ts` the state machine: turns, waits, retries, limits, interrupts, background agents, file changes, replay flag. `transcriptWatcher.ts` tails transcripts + busy sessions' `subagents/` and replays recent tails on start
+- `present.ts` shared presentation (live state, urgency order, headline, error advice, summaries); `estimator.ts` ETA on active time (waits excluded)
+- `statusBar.ts`, `notifier.ts`, `sessionsView.ts` (tree), `dashboardView.ts` + `media/dashboard.{js,css}` (Monitor webview), `changes.ts` (per-prompt diffs from file-history backups), `recentStore.ts` (Recent list), `hookBridge.ts` (Notification hook install + events tail), `statusFile.ts` (status v2/history files, widget spawn + pid lock), `platform.ts`
+- `media/overlay.ps1` desktop widget; `media/toast.ps1` native Windows toast; `media/hook-notify.{ps1,sh}` the Notification hook script (copied to `~/.claude/hooks/claude-prompt-monitor-hook.*` on install)
 - `hooks/claude-stop-toast.ps1` standalone Claude Code Stop hook (no VS Code needed)
 - `Open Claude Widget.bat` launches the widget without VS Code
-- Keys: `Ctrl+Alt+M` toggle widget, `Ctrl+Alt+Shift+M` show Sessions view. `notificationTarget` = editor|native|both.
+- Keys: `Ctrl+Alt+M` toggle widget, `Ctrl+Alt+Shift+M` focus the Monitor panel. `notificationTarget` = editor|native|both.
+- `docs/concept/`: the concept design (2026-09-27) as canvas sources (`*.dc.html`, `canvas.json`) plus `index.html`, a static preview of all boards; excluded from the `.vsix`. Online canvas: https://claude.ai/artifact/NQKVRx2vNm1CPQ4gAoYnah (private; only the overview board was published before the Artifact tool went away).
+- `test/`: `npm test` = compile + `scenarios.js` + `replay.js` (replays this machine's transcripts; `node test/replay.js <session>` traces one). `vscode-stub.js` lets them run in plain Node.
 
 ## Commands
 ```
 npm install
 npm run compile                 # tsc
+npm test                        # compile + scenario tests + replay of local transcripts
 npm run package                 # npx @vscode/vsce@2.32.0 package -> .vsix
-code --install-extension somshrestha-claude-prompt-monitor-<ver>.vsix --force
+code --install-extension somshrestha-claude-prompt-monitor-<ver>.vsix --profile Som --force
 ```
 Then reload the VS Code window (mandatory, see ../CLAUDE.md). F5 runs an Extension Development Host.
 
@@ -44,6 +51,9 @@ Delete the previous version's `.vsix` from the folder after release.
 - 0.1.2 (2026-09-21): widget never opened because spawn used `detached: true` (DETACHED_PROCESS, powershell exits 0 in ~70ms). Now `windowsHide: true`, `stdio: 'ignore'`, absolute System32 path. Button became a toggle; multi-monitor placement follows the mouse screen; mutex replaced by pid file; extension detects a stale build and offers reload.
 - PowerShell 5.1 traps hit here: `[Math]::Max(0,$double)` truncates to int; `Set-Content -Encoding utf8` writes a BOM (use `[IO.File]::WriteAllText`); `Get-Content -Tail` took ~37s on large transcripts (seek with FileStream); `New-Object Mutex(..., [ref]$created)` does not bind `createdNew`.
 - Verify the widget via EnumWindows/GetWindowRect, not by grepping process command lines.
+- 0.1.3 (2026-09-27): surveyed ~2,600 real turns to build the new state machine; `docs/NOTES.md` "Transcript facts" lists the shapes it relies on. Found and fixed: native toast + sound never ran on Windows (`detached: true` again), interrupts left turns running, tokens double-counted, duplicate history on every start.
+- The Notification hook edits `~/.claude/settings.json`: never rewrite it if it fails to parse; backup goes to `settings.json.before-claude-prompt-monitor`.
 
 ## Open items
 - Marketplace publish not done (needs PAT + icon decision).
+- Publish 0.1.3: check it in a real window first (reload after install), then push, tag and `gh release create v0.1.3` with the `.vsix`; delete the 0.1.2 `.vsix` from the folder afterwards. Then update the version in `../CLAUDE.md` (vs-extension table).

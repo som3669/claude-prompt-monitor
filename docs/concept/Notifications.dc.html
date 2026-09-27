@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notifications</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#e8e6e1;background:#1f1f1f}
+a{color:#4daafc}a:hover{color:#7cc0ff}
+</style>
+</helmet>
+<div style="width: 1440px; height: 600px; box-sizing: border-box; padding: 44px 48px; color: #e8e6e1; background: #1f1f1f; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px">
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">In VS Code — with the answer, and the next click</h2>
+<p style="margin: 0; font-size: 15px; color: #a9a7a1">A wait notifies after 2.5 s, so questions answered at once never ping. Successful prompts under 15 s stay quiet; errors and limits always notify.</p>
+</div>
+
+<div style="background: #202020; border: 1px solid #3c3c3c; border-radius: 6px; padding: 12px 14px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>
+<span style="line-height: 1.45">Claude is asking you in ai_patro (Release 1.4 build): “Commit the language fix only, or both commits?”</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; color: #9d9d9d">Source: Claude Prompt Monitor</span>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Show</button>
+</div>
+</div>
+</div>
+
+<div style="background: #202020; border: 1px solid #3c3c3c; border-radius: 6px; padding: 12px 14px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4daafc" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 7.2v4M8 4.8v.2"></path></svg>
+<span style="line-height: 1.45">Claude finished — car (Admin redesign) · 20m 44s · 5 files (+212 −48) · 32 tool calls · 3 agents — All 13 admin pages and the admin login are redesigned in the same style as the dashboard.</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; color: #9d9d9d">Source: Claude Prompt Monitor</span>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Review Changes</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Show</button>
+</div>
+</div>
+</div>
+
+<div style="background: #202020; border: 1px solid #3c3c3c; border-radius: 6px; padding: 12px 14px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>
+<span style="line-height: 1.45">Claude stopped — mas · 0s · 0 tool calls — sign-in expired — run /login in Claude Code, then send the prompt again.</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; color: #9d9d9d">Source: Claude Prompt Monitor</span>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Show</button>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">On the desktop — when VS Code is minimised</h2>
+<p style="margin: 0; font-size: 15px; color: #a9a7a1">notificationTarget: native or both. The text reaches Windows through environment variables, never a shell string. Launched without detached, the fix that makes them appear at all.</p>
+</div>
+
+<div style="background: #2b2b2b; border: 1px solid #3a3a3a; border-radius: 8px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #a8a8a8">Windows PowerShell</div>
+<div style="font-size: 14px; font-weight: 600; color: #ffffff">Claude is asking you — ai_patro (Release 1.4 build)</div>
+<div style="font-size: 13px; color: #d0d0d0; line-height: 1.45">“Commit the language fix only, or both commits?”</div>
+</div>
+
+<div style="background: #2b2b2b; border: 1px solid #3a3a3a; border-radius: 8px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #a8a8a8">Windows PowerShell</div>
+<div style="font-size: 14px; font-weight: 600; color: #ffffff">Claude finished — car (Admin redesign)</div>
+<div style="font-size: 13px; color: #d0d0d0; line-height: 1.45">20m 44s · 5 files (+212 −48) · 32 tool calls · 3 agents<br>All 13 admin pages and the admin login are redesigned in the same style as the dashboard.</div>
+</div>
+
+<div style="background: #2b2b2b; border: 1px solid #3a3a3a; border-radius: 8px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #a8a8a8">Windows PowerShell</div>
+<div style="font-size: 14px; font-weight: 600; color: #ffffff">Claude is available again</div>
+<div style="font-size: 13px; color: #d0d0d0; line-height: 1.45">Claude’s usage limit has reset — you can pick up where you left off in troublelens.</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":600}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

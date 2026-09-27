@@ -5,10 +5,20 @@ import * as vscode from 'vscode';
 import { TranscriptEntry } from './types';
 
 const MAX_CHUNK = 4 * 1024 * 1024;
+const REPLAY_BYTES = 2 * 1024 * 1024;
 
 export interface EntryEvent {
 	file: string;
 	entry: TranscriptEntry;
+	/** Read from history at startup rather than written just now. */
+	replay?: boolean;
+}
+
+export interface WatcherOptions {
+	/** Extra directories to watch — the `subagents` folders of sessions that are busy right now. */
+	extraDirs?: () => string[];
+	/** Transcripts written within this window are replayed at startup, so a running prompt is picked up. */
+	replayWindowMs?: number;
 }
 
 export function claudeHome(): string {
@@ -28,7 +38,8 @@ export function projectsDir(): string {
 
 /**
  * Tails every `*.jsonl` transcript under `~/.claude/projects`, which is where both the
- * Claude Code VS Code extension and the terminal CLI record their sessions.
+ * Claude Code VS Code extension and the terminal CLI record their sessions, plus the
+ * `<session>/subagents/*.jsonl` transcripts of agents working for a busy session.
  */
 export class TranscriptWatcher implements vscode.Disposable {
 	private readonly emitter = new vscode.EventEmitter<EntryEvent>();
@@ -39,17 +50,49 @@ export class TranscriptWatcher implements vscode.Disposable {
 	private watcher?: fs.FSWatcher;
 	private pollQueued = false;
 
-	/** Seeds offsets at end-of-file so existing transcript content is never replayed as new work. */
+	constructor(private readonly options: WatcherOptions = {}) {}
+
+	/**
+	 * Seeds offsets at end-of-file so existing transcript content is never treated as new work — except
+	 * the recent tail of transcripts written in the last few minutes, which is replayed (flagged as
+	 * such) so a prompt that was already running when the window reloaded is tracked, not missed.
+	 */
 	start(): void {
+		const window = this.options.replayWindowMs ?? 0;
+		const now = Date.now();
 		for (const file of this.listTranscripts()) {
+			let stat: fs.Stats;
 			try {
-				this.offsets.set(file, fs.statSync(file).size);
+				stat = fs.statSync(file);
 			} catch {
-				/* file vanished between listing and stat */
+				continue; // file vanished between listing and stat
 			}
+			if (window > 0 && now - stat.mtimeMs < window) {
+				this.replayTail(file, stat.size);
+			}
+			this.offsets.set(file, stat.size);
 		}
 		this.schedulePoll();
 		this.attachWatcher();
+	}
+
+	private replayTail(file: string, size: number): void {
+		const start = Math.max(0, size - REPLAY_BYTES);
+		const buf = this.read(file, start, size - start);
+		if (!buf) {
+			return;
+		}
+		const lines = buf.toString('utf8').split('\n');
+		if (start > 0) {
+			lines.shift(); // a mid-file start lands inside a line
+		}
+		const complete = buf[buf.length - 1] === 0x0a ? lines : lines.slice(0, -1);
+		for (const line of complete) {
+			const entry = parseLine(line);
+			if (entry) {
+				this.emitter.fire({ file, entry, replay: true });
+			}
+		}
 	}
 
 	private schedulePoll(): void {
@@ -108,24 +151,50 @@ export class TranscriptWatcher implements vscode.Disposable {
 		return out;
 	}
 
+	private listAgentTranscripts(): string[] {
+		const out: string[] = [];
+		for (const dir of this.options.extraDirs?.() ?? []) {
+			let names: string[];
+			try {
+				names = fs.readdirSync(dir);
+			} catch {
+				continue; // most sessions never start an agent
+			}
+			for (const name of names) {
+				if (name.endsWith('.jsonl')) {
+					out.push(path.join(dir, name));
+				}
+			}
+		}
+		return out;
+	}
+
 	poll(): void {
 		for (const file of this.listTranscripts()) {
-			this.drain(file);
+			this.drain(file, 0);
+		}
+		// An agent transcript from long ago says nothing about now; only recent ones are read in full.
+		const window = this.options.replayWindowMs ?? 30 * 60_000;
+		for (const file of this.listAgentTranscripts()) {
+			this.drain(file, window);
 		}
 	}
 
-	/** Reads whole lines appended since the last read and emits them. */
-	private drain(file: string): void {
-		let size: number;
+	/**
+	 * Reads whole lines appended since the last read and emits them. A file seen for the first time is
+	 * read from the top — it is a brand new session — unless `freshWindowMs` says it is too old to matter.
+	 */
+	private drain(file: string, freshWindowMs: number): void {
+		let stat: fs.Stats;
 		try {
-			size = fs.statSync(file).size;
+			stat = fs.statSync(file);
 		} catch {
 			return;
 		}
+		const size = stat.size;
 		let offset = this.offsets.get(file);
 		if (offset === undefined) {
-			// A transcript that appeared after startup — a brand new session, so read it from the top.
-			offset = 0;
+			offset = freshWindowMs > 0 && Date.now() - stat.mtimeMs > freshWindowMs ? size : 0;
 		}
 		if (size < offset) {
 			offset = 0; // truncated or rotated

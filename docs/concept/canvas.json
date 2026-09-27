@@ -1,0 +1,31 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-09-27T09:00:00Z" },
+  "title": "Claude Prompt Monitor — concept design",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1440, "h": 1000, "title": "The concept" },
+    "Roadmap.dc.html": { "x": 1520, "y": 0, "w": 900, "h": 1000, "title": "Built now, and next" },
+    "MonitorPanel.dc.html": { "x": 0, "y": 1400, "w": 420, "h": 1400, "title": "Monitor panel (sidebar)" },
+    "StatusBar.dc.html": { "x": 500, "y": 1400, "w": 1440, "h": 600, "title": "Status bar states" },
+    "Notifications.dc.html": { "x": 500, "y": 2120, "w": 1440, "h": 600, "title": "Notifications" },
+    "Widget.dc.html": { "x": 0, "y": 3240, "w": 1000, "h": 640, "title": "Desktop widget states" },
+    "ReviewChanges.dc.html": { "x": 1080, "y": 3240, "w": 1340, "h": 640, "title": "Review what a prompt changed" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Roadmap.dc.html",
+    "MonitorPanel.dc.html",
+    "StatusBar.dc.html",
+    "Notifications.dc.html",
+    "Widget.dc.html",
+    "ReviewChanges.dc.html"
+  ],
+  "notes": {
+    "t_concept": { "x": 0, "y": -300, "text": "Claude Prompt Monitor — the concept", "kind": "title1", "maxW": 2420 },
+    "t_vscode": { "x": 0, "y": 1140, "text": "Inside VS Code", "kind": "title1", "maxW": 1940 },
+    "t_away": { "x": 0, "y": 2980, "text": "Away from VS Code, and coming back", "kind": "title1", "maxW": 2420 }
+  },
+  "designSystems": []
+}

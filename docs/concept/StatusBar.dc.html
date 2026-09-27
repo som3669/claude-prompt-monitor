@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Status bar states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#e8e6e1;background:#1f1f1f}
+a{color:#4daafc}a:hover{color:#7cc0ff}
+</style>
+</helmet>
+<div style="width: 1440px; height: 600px; box-sizing: border-box; padding: 44px 48px; color: #e8e6e1; background: #1f1f1f; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">Status bar — always the most urgent thing</h2>
+<p style="margin: 0; font-size: 15px; color: #a9a7a1">One item, right side. Several sessions show a ×2 count and the most urgent one wins: needs you, then retrying, then working, then agents. Click opens the Monitor panel.</p>
+</div>
+<div style="display: grid; grid-template-columns: 880px minmax(0, 1fr); gap: 40px; align-items: start">
+<div style="display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Working</span> — elapsed / estimated total, then Claude’s task list. A ? marks a rough estimate.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>Claude 1:12 / ~2:30 · 3/7</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Needs you</span> — the theme’s warning colour, so it reads from across the room. The project says where.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 8px; height: 22px; background: #7a6400; color: #ffffff"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg>Claude needs you · ai_patro</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Retrying</span> — the API failed and Claude Code is on attempt 3 of 10. The hover says why.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>Claude retrying 3/10</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Agents</span> — the reply is done; background agents are out. The prompt is not finished until they report back.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM10.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM2 13c0-2 1.6-3.5 3.5-3.5S9 11 9 13M7 13c0-2 1.6-3.5 3.5-3.5S14 11 14 13"></path></svg>Claude · 2 agents running</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Usage limit</span> — nothing running, but a limit is in force. Stays until the reset, then a notification says so.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px; color: #e2c08d"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#e2c08d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 5v3.2l2.2 1.4"></path></svg>Claude limit · resets 12:25 PM</span></div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; color: #a9a7a1">Hover — every running session, most urgent first</div>
+<div style="background: #202020; border: 1px solid #454545; border-radius: 6px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; line-height: 1.5; color: #cccccc; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.45)">
+<div><span style="font-weight: 600; color: #ffffff">ai_patro</span> — Release 1.4 build</div>
+<div style="color: #a8a8a8">add release notes and bump the build number</div>
+<div style="color: #e2c08d; display: flex; gap: 6px; align-items: flex-start"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#e2c08d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 3px"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg><span><span style="font-weight: 600">Waiting for you · 2:14</span> — Commit the language fix only, or both commits?</span></div>
+<div style="color: #a8a8a8">12 tools · 2 files (+40 −3)</div>
+<div style="height: 1px; background: #3c3c3c"></div>
+<div><span style="font-weight: 600; color: #ffffff">car</span> — Admin redesign</div>
+<div style="color: #a8a8a8">enhance all admin page</div>
+<div>elapsed 1:12 · about 1:18 left</div>
+<div>now: <span style="font-weight: 600">Bash</span> · 0:42 — npm run build</div>
+<div style="color: #a8a8a8">23 tools · tasks 3/7 · 6 files (+120 −14)</div>
+<div style="height: 1px; background: #3c3c3c"></div>
+<div style="display: flex; gap: 12px"><a href="#" style="color: #4daafc">Dashboard</a><a href="#" style="color: #4daafc">Open Claude</a></div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":600}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Claude Prompt Monitor concept</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1b1a17;background:#f6f4ef}
+a{color:#a8482b}a:hover{color:#7d3520}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1000px; box-sizing: border-box; padding: 64px 72px; color: #1b1a17; background: #f6f4ef; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 14px; max-width: 980px">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em; color: #5c5a53">CLAUDE PROMPT MONITOR · VS CODE EXTENSION · CONCEPT</div>
+<h1 style="margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 60px; line-height: 1.05; letter-spacing: -0.01em">Know the moment Claude needs you — and the moment it is done.</h1>
+<p style="margin: 0; font-size: 20px; line-height: 1.5; color: #4a4843; max-width: 860px">A long prompt is something you walk away from. The monitor spends your attention only when it is worth it, and answers “what happened?” in one glance when you come back. Every surface — status bar, Monitor panel, notifications, desktop widget — shows the same state.</p>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">WHILE A PROMPT RUNS, IT IS IN ONE OF FOUR STATES</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b77900" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg>
+<span>Needs you</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">Claude asked a question, has a plan to approve, or is showing a permission prompt. It cannot continue.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">Amber everywhere · the question itself in the notification · the ETA clock pauses</p>
+</div>
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#2f6fdb" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>
+<span>Working</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">Generating, or running tools. Progress comes from past prompts and from Claude’s own task list.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">Elapsed / ETA · the current step and how long it has run · 3/7 tasks</p>
+</div>
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b77900" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5V5h-2.5"></path></svg>
+<span>Retrying</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">The API call failed — overloaded, connection dropped — and Claude Code is retrying it.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">retrying 3/10 · the error in plain words</p>
+</div>
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#56688f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM10.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM2 13c0-2 1.6-3.5 3.5-3.5S9 11 9 13M7 13c0-2 1.6-3.5 3.5-3.5S14 11 14 13"></path></svg>
+<span>Agents</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">The reply is done, but agents it launched in the background are still working. Claude resumes when they report back.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">Which agents, and what each is doing right now</p>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">AND FOUR WAYS IT ENDS</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Done</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">Claude’s closing sentence, the files it changed, and one click to see exactly that prompt’s diff.</span></div>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b3261e" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Stopped</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">With what to do about it: “sign-in expired — run /login”, “API overloaded — try again”.</span></div>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b77900" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 5v3.2l2.2 1.4"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Usage limit</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">The reset time, the status bar keeps it until then, and a second alert when it resets.</span></div>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#5c5a53" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M5 5h6v6H5z"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Interrupted</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">Ends at once, no notification — you pressed stop, you are right there.</span></div>
+</div>
+</div>
+</div>
+
+<div style="margin-top: auto; border-top: 1px solid #d9d4c8; padding-top: 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 24px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">BUILT ON WHAT THE TRANSCRIPTS ACTUALLY SAY</div>
+<div style="font-size: 13px; color: #5c5a53">2,586 prompts in this machine’s Claude Code transcripts, July–September 2026</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Times Claude stopped to ask you</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">104</div>
+<div style="font-size: 13px; color: #5c5a53">median wait 46 s · 1 in 10 waited over 6 min — the monitor used to call them “running”</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Prompts interrupted</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">6.4%</div>
+<div style="font-size: 13px; color: #5c5a53">each one left a spinner running for up to 30 minutes; now they end at once</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Turns that edit files</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">37%</div>
+<div style="font-size: 13px; color: #5c5a53">median 2 files — 70% of changed files have an exact before-state for a per-prompt diff</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Token overcount, fixed</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">1.8×</div>
+<div style="font-size: 13px; color: #5c5a53">one transcript entry per content block, each repeating the usage — and native toasts never ran on Windows</div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

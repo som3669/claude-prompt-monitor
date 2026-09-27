@@ -177,21 +177,25 @@ function Read-Transcripts {
 	if (-not (Test-Path -LiteralPath $projects)) { return @() }
 
 	$cutoff = (Get-Date).AddMinutes(-15)
+	# Agents write their own transcripts under <session>\subagents; they never open a turn of their own.
 	$files = Get-ChildItem -LiteralPath $projects -Filter '*.jsonl' -Recurse -File -ErrorAction SilentlyContinue |
-		Where-Object { $_.LastWriteTime -gt $cutoff }
+		Where-Object { $_.LastWriteTime -gt $cutoff -and $_.FullName -notmatch '\\subagents\\' }
 
 	$sessions = @()
 	foreach ($file in $files) {
 		$lines = Get-TailLines $file.FullName (1MB)
 		if ($lines.Count -eq 0) { continue }
 
-		# One forward pass: every human prompt opens a turn, end_turn closes it. Closed turns become
-		# timing samples; a turn still open at the end of the file is what is running now.
+		# One forward pass: every human prompt opens a turn, end_turn closes it - and so do an interrupt,
+		# an API error or a usage limit. Closed turns become timing samples; a turn still open at the end
+		# of the file is what is running now.
 		$startedAt = $null
 		$project = 'Claude'
 		$prompt = ''
 		$tools = 0
 		$lastStep = 'thinking'
+		$waiting = $false
+		$question = ''
 
 		foreach ($line in $lines) {
 			if ($line.Length -lt 2) { continue }
@@ -201,6 +205,8 @@ function Read-Transcripts {
 				if ($line -match '"timestamp":"([^"]+)"') { $startedAt = [datetime]$matches[1] }
 				$tools = 0
 				$lastStep = 'thinking'
+				$waiting = $false
+				$question = ''
 				if ($line -match '"cwd":"([^"]+)"') {
 					$project = Split-Path ($matches[1] -replace '\\\\', '\') -Leaf
 				}
@@ -219,10 +225,37 @@ function Read-Transcripts {
 
 			if ($null -eq $startedAt) { continue }
 
+			# The user pressed stop. (After end_turn the same marker comes from a cancelled Stop hook, but
+			# by then no turn is open.)
+			if ($line.Contains('"type":"user"') -and $line.Contains('[Request interrupted by user')) {
+				$startedAt = $null
+				continue
+			}
+			# An API error or a usage limit ends the turn: Claude is not coming back to it on its own.
+			if ($line.Contains('"isApiErrorMessage":true') -or
+				($line.Contains('"model":"<synthetic>"') -and $line.Contains('"stop_reason":"stop_sequence"'))) {
+				$startedAt = $null
+				continue
+			}
+			if ($line.Contains('"isSidechain":true')) { continue }
+
+			# The answer to a question arrives as the next tool result.
+			if ($waiting -and $line.Contains('"type":"tool_result"')) {
+				$waiting = $false
+				$question = ''
+			}
+
 			# {"type":"tool_use","id":"toolu_...","name":"Bash",...} - the id sits between the two keys.
 			foreach ($match in [regex]::Matches($line, '"type":"tool_use"[^}]*?"name":"([^"]+)"')) {
 				$tools++
 				$lastStep = $match.Groups[1].Value
+				if ($lastStep -eq 'AskUserQuestion' -or $lastStep -eq 'ExitPlanMode') {
+					$waiting = $true
+					$question = 'A plan is ready for your approval'
+					if ($line -match '"question":"((?:[^"\\]|\\.){0,160})') {
+						$question = $matches[1] -replace '\\n', ' ' -replace '\\"', '"'
+					}
+				}
 			}
 
 			if ($line.Contains('"stop_reason":"end_turn"')) {
@@ -238,16 +271,25 @@ function Read-Transcripts {
 		if ($null -eq $startedAt) { continue }
 
 		$startedUtc = $startedAt.ToUniversalTime()
+		$state = 'working'
+		if ($waiting) { $state = 'waiting' }
 		$sessions += [pscustomobject]@{
-			project   = $project
-			prompt    = $prompt
+			project    = $project
+			title      = ''
+			prompt     = $prompt
+			state      = $state
+			waitDetail = $question
 			startedUtc = $startedUtc
-			elapsedMs = ((Get-Date).ToUniversalTime() - $startedUtc).TotalMilliseconds
-			etaMs     = 0
-			progress  = 0
-			confident = $false
-			lastStep  = $lastStep
-			tools     = $tools
+			elapsedMs  = ((Get-Date).ToUniversalTime() - $startedUtc).TotalMilliseconds
+			etaMs      = 0
+			progress   = 0
+			confident  = $false
+			lastStep   = $lastStep
+			stepDetail = ''
+			tools      = $tools
+			tasksDone  = 0
+			tasksTotal = 0
+			agents     = 0
 		}
 	}
 
@@ -268,6 +310,14 @@ $foreground = [System.Drawing.Color]::FromArgb(244, 244, 245)
 $muted = [System.Drawing.Color]::FromArgb(161, 161, 170)
 $accent = [System.Drawing.Color]::FromArgb(217, 119, 87)
 $track = [System.Drawing.Color]::FromArgb(45, 45, 50)
+# State colours. Each is always paired with words on the widget, never the only signal.
+$waitColor = [System.Drawing.Color]::FromArgb(234, 179, 8)
+$doneColor = [System.Drawing.Color]::FromArgb(34, 197, 94)
+$failColor = [System.Drawing.Color]::FromArgb(239, 68, 68)
+$agentColor = [System.Drawing.Color]::FromArgb(125, 140, 170)
+$dot = [char]0x00B7
+$minus = [char]0x2212
+$ellipsis = [char]0x2026
 
 $form = New-Object System.Windows.Forms.Form
 $form.FormBorderStyle = 'None'
@@ -367,6 +417,13 @@ $stepLabel.Location = New-Object System.Drawing.Point(14, 70)
 $stepLabel.Size = New-Object System.Drawing.Size(316, 18)
 $form.Controls.Add($stepLabel)
 
+# A strip down the left edge in the state's colour, readable from across the room.
+$stripePanel = New-Object System.Windows.Forms.Panel
+$stripePanel.BackColor = $track
+$stripePanel.Location = New-Object System.Drawing.Point(0, 0)
+$stripePanel.Size = New-Object System.Drawing.Size(3, $form.Height)
+$form.Controls.Add($stripePanel)
+
 # Dragging: the window has no title bar to grab, so the whole surface moves it.
 $script:dragging = $false
 $script:dragOrigin = New-Object System.Drawing.Point(0, 0)
@@ -406,14 +463,64 @@ $form.Add_KeyDown({
 $script:cachedSessions = @()
 $script:lastScanAt = [DateTime]::MinValue
 $script:flashTicks = 0
+$script:flashColor = $accent
+$script:lastWaitKey = ''
 $scanIntervalMs = 3000
+
+function Format-Duration([double]$ms) {
+	if ($ms -lt 0) { $ms = 0 }
+	$total = [int][Math]::Round($ms / 1000)
+	$hours = [int][Math]::Floor($total / 3600)
+	$minutes = [int][Math]::Floor(($total % 3600) / 60)
+	$seconds = $total % 60
+	if ($hours -gt 0) { return '{0}h {1:d2}m' -f $hours, $minutes }
+	if ($minutes -gt 0) { return '{0}m {1:d2}s' -f $minutes, $seconds }
+	return '{0}s' -f $seconds
+}
+
+function Limit-Text([string]$text, [int]$max) {
+	if ($null -eq $text) { return '' }
+	$text = ($text -replace '\s+', ' ').Trim()
+	if ($text.Length -gt $max) { return $text.Substring(0, $max - 1) + $ellipsis }
+	return $text
+}
+
+function Get-Name($item) {
+	$name = [string]$item.project
+	if ([string]::IsNullOrWhiteSpace($name)) { $name = 'Claude' }
+	$title = [string]$item.title
+	if (-not [string]::IsNullOrWhiteSpace($title)) { $name = '{0} {1} {2}' -f $name, $dot, $title }
+	return $name
+}
+
+function Get-Urgency($session) {
+	switch ([string]$session.state) {
+		'waiting' { return 0 }
+		'retrying' { return 1 }
+		'background' { return 3 }
+		default { return 2 }
+	}
+}
+
+function Set-Bar([System.Drawing.Color]$color, [double]$fraction) {
+	# Clamped by hand: [Math]::Max(0, $double) resolves to the (int, int) overload and truncates.
+	if ($fraction -lt 0) { $fraction = 0 }
+	if ($fraction -gt 1) { $fraction = 1 }
+	$fillPanel.BackColor = $color
+	$fillPanel.Width = [int]($trackPanel.Width * $fraction)
+	$stripePanel.BackColor = $color
+}
 
 function Update-Widget {
 	$status = Read-StatusFile
 	$sessions = @()
+	$recent = @()
+	$limitResetsAt = 0
 	$source = 'transcripts'
 	if ($null -ne $status) {
 		$sessions = @($status.sessions | Where-Object { $_ })
+		$recent = @($status.recent | Where-Object { $_ })
+		if ($status.limitResetsAt) { $limitResetsAt = [double]$status.limitResetsAt }
 		$source = 'extension'
 	}
 	if ($sessions.Count -eq 0) {
@@ -436,48 +543,123 @@ function Update-Widget {
 	}
 
 	if ($sessions.Count -eq 0) {
-		$titleLabel.Text = 'Claude is idle'
-		$metaLabel.Text = 'Waiting for a prompt'
-		$stepLabel.Text = ''
-		$fillPanel.Width = 0
+		Show-Idle $recent $limitResetsAt
 		return
 	}
 
-	# The oldest running prompt is the one being waited on.
-	$session = $sessions | Sort-Object -Property elapsedMs -Descending | Select-Object -First 1
+	# The most urgent first - Claude waiting on you beats everything - then the one waited on longest.
+	$session = $sessions |
+		Sort-Object -Property @{ Expression = { Get-Urgency $_ } }, @{ Expression = { [double]$_.elapsedMs }; Descending = $true } |
+		Select-Object -First 1
 	$extra = ''
-	if ($sessions.Count -gt 1) { $extra = ' +{0} more' -f ($sessions.Count - 1) }
-
-	$project = $session.project
-	if ([string]::IsNullOrWhiteSpace($project)) { $project = 'Claude' }
-	$titleLabel.Text = '{0}{1}' -f $project, $extra
-
+	if ($sessions.Count -gt 1) { $extra = '  +{0} more' -f ($sessions.Count - 1) }
+	$name = Get-Name $session
+	$state = [string]$session.state
+	if ([string]::IsNullOrWhiteSpace($state)) { $state = 'working' } # a status file from an older build
 	$elapsed = Format-Clock $session.elapsedMs
+
+	if ($state -eq 'waiting') {
+		$titleLabel.Text = (Limit-Text ('Needs you ' + $dot + ' ' + $name) 34) + $extra
+		$detail = [string]$session.waitDetail
+		if ([string]::IsNullOrWhiteSpace($detail)) { $detail = 'Claude is waiting for your answer' }
+		$metaLabel.Text = Limit-Text $detail 58
+		if ($session.waitMs) {
+			$stepLabel.Text = 'waiting {0}   {1}   the clock is paused' -f (Format-Clock ([double]$session.waitMs)), $dot
+		} else {
+			$stepLabel.Text = 'waiting for you   ' + $dot + '   ' + $elapsed + ' since the prompt'
+		}
+		Set-Bar $waitColor 1
+		# A new question flashes the window once, so it is noticed even on a busy desktop.
+		$key = $name + '|' + $detail
+		if ($key -ne $script:lastWaitKey) {
+			$script:lastWaitKey = $key
+			$script:flashColor = $waitColor
+			$script:flashTicks = 8
+		}
+		return
+	}
+	$script:lastWaitKey = ''
+	$titleLabel.Text = (Limit-Text $name 34) + $extra
+
+	if ($state -eq 'retrying') {
+		$retry = [string]$session.retry
+		$attempt = ($retry -split ' ', 2)[0]
+		$message = ''
+		if ($retry.Contains(' ')) { $message = ($retry -split ' ', 2)[1] }
+		$metaLabel.Text = '{0}   retrying {1}' -f $elapsed, $attempt
+		$stepLabel.Text = Limit-Text $message 60
+		Set-Bar $waitColor ([double]$session.progress)
+		return
+	}
+
+	if ($state -eq 'background') {
+		$metaLabel.Text = '{0}   reply done {1} {2} agents working' -f $elapsed, $dot, $session.agents
+		$stepLabel.Text = Limit-Text ([string]$session.prompt) 60
+		Set-Bar $agentColor 1
+		return
+	}
+
+	$tasks = ''
+	if ($session.tasksTotal -gt 0) { $tasks = '   {0}/{1} tasks' -f $session.tasksDone, $session.tasksTotal }
 	if ($session.etaMs -gt 0) {
 		$suffix = ''
 		if (-not $session.confident) { $suffix = '?' }
-		$metaLabel.Text = '{0} / ~{1}{2}   {3} tools' -f $elapsed, (Format-Clock $session.etaMs), $suffix, $session.tools
-		# Clamped by hand: [Math]::Max(0, $double) resolves to the (int, int) overload and truncates.
-		$fraction = [double]$session.progress
-		if ($fraction -lt 0) { $fraction = 0 }
-		if ($fraction -gt 1) { $fraction = 1 }
-		$fillPanel.Width = [int]($trackPanel.Width * $fraction)
+		$metaLabel.Text = '{0} / ~{1}{2}   {3} tools{4}' -f $elapsed, (Format-Clock $session.etaMs), $suffix, $session.tools, $tasks
+		Set-Bar $accent ([double]$session.progress)
 	} else {
 		$note = ''
 		if ($source -eq 'transcripts') { $note = '   (no estimate without VS Code)' }
-		$metaLabel.Text = '{0}   {1} tools{2}' -f $elapsed, $session.tools, $note
-		$fillPanel.Width = 0
+		$metaLabel.Text = '{0}   {1} tools{2}{3}' -f $elapsed, $session.tools, $tasks, $note
+		Set-Bar $accent 0
 	}
 
-	$step = $session.lastStep
+	if (-not [string]::IsNullOrWhiteSpace([string]$session.task)) {
+		$stepLabel.Text = Limit-Text ([string]$session.task) 60
+		return
+	}
+	$step = [string]$session.lastStep
 	if ([string]::IsNullOrWhiteSpace($step)) { $step = 'thinking' }
-	$prompt = [string]$session.prompt
-	if ($prompt.Length -gt 46) { $prompt = $prompt.Substring(0, 45) + [char]0x2026 }
-	if ([string]::IsNullOrWhiteSpace($prompt)) {
+	if ($session.stepMs -gt 5000) { $step = '{0} {1}' -f $step, (Format-Clock ([double]$session.stepMs)) }
+	$what = [string]$session.stepDetail
+	if ([string]::IsNullOrWhiteSpace($what)) { $what = [string]$session.prompt }
+	if ([string]::IsNullOrWhiteSpace($what)) {
 		$stepLabel.Text = $step
 	} else {
-		$stepLabel.Text = '{0} - {1}' -f $step, $prompt
+		$stepLabel.Text = Limit-Text ('{0} - {1}' -f $step, $what) 60
 	}
+}
+
+# Nothing running: show the prompt that just finished for a few minutes, since a glance after walking
+# back is exactly when the result matters; otherwise idle, with any usage limit still in force.
+function Show-Idle($recent, [double]$limitResetsAt) {
+	$script:lastWaitKey = ''
+	$last = $recent | Sort-Object -Property endedAt -Descending | Select-Object -First 1
+	if ($null -ne $last) {
+		$word = 'Done'
+		$color = $doneColor
+		switch ([string]$last.status) {
+			'error' { $word = 'Stopped'; $color = $failColor }
+			'limited' { $word = 'Usage limit'; $color = $waitColor }
+			'interrupted' { $word = 'Interrupted'; $color = $agentColor }
+		}
+		$titleLabel.Text = Limit-Text ('{0} {1} {2}' -f $word, $dot, (Get-Name $last)) 44
+		$facts = @(Format-Duration ([double]$last.durationMs))
+		if ($last.files -gt 0) { $facts += ('{0} files +{1} {2}{3}' -f $last.files, $last.added, $minus, $last.removed) }
+		$facts += ('{0} tools' -f $last.tools)
+		$metaLabel.Text = $facts -join ('   ' + $dot + '   ')
+		$stepLabel.Text = Limit-Text ([string]$last.headline) 60
+		Set-Bar $color 1
+		return
+	}
+	$titleLabel.Text = 'Claude is idle'
+	if ($limitResetsAt -gt 0) {
+		$reset = [DateTimeOffset]::FromUnixTimeMilliseconds([long]$limitResetsAt).LocalDateTime.ToString('t')
+		$metaLabel.Text = 'Usage limit ' + $dot + ' resets at ' + $reset
+	} else {
+		$metaLabel.Text = 'Waiting for a prompt'
+	}
+	$stepLabel.Text = ''
+	Set-Bar $track 0
 }
 
 # Asking for the widget again means "where is it?", so it always lands in the same known corner and
@@ -490,6 +672,7 @@ function Show-Widget {
 	$form.BringToFront()
 	[void]$form.Activate()
 
+	$script:flashColor = $accent
 	$script:flashTicks = 6
 }
 
@@ -501,7 +684,7 @@ function Update-Flash {
 	}
 	$script:flashTicks--
 	if ($script:flashTicks % 2 -eq 0) {
-		$form.BackColor = $accent
+		$form.BackColor = $script:flashColor
 	} else {
 		$form.BackColor = $background
 	}

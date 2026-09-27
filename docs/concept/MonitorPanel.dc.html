@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Monitor panel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#cccccc;background:#181818}
+a{color:#4daafc}a:hover{color:#7cc0ff}
+</style>
+</helmet>
+<div style="width: 420px; height: 1400px; box-sizing: border-box; color: #cccccc; background: #181818; border-right: 1px solid #2b2b2b; display: flex; flex-direction: column; font-size: 13px; line-height: 1.45">
+<div style="height: 35px; display: flex; align-items: center; padding: 0 20px; font-size: 11px; letter-spacing: 0.04em; color: #bbbbbb; flex: none">CLAUDE PROMPT MONITOR</div>
+<div style="height: 22px; display: flex; align-items: center; gap: 4px; padding: 0 8px; font-size: 11px; font-weight: 700; color: #cccccc; border-top: 1px solid #2b2b2b; flex: none">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg>
+<span style="flex-grow: 1">MONITOR</span>
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5h11v9h-11zM2.5 6h11"></path></svg>
+</div>
+
+<div style="padding: 8px 12px 16px; display: flex; flex-direction: column; flex-grow: 1">
+<div style="display: flex; gap: 6px">
+<button type="button" style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 6px; height: 28px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5h11v9h-11zM2.5 6h11"></path></svg>Close desktop widget</button>
+<button type="button" aria-label="Completion notifications on" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid #3c3c3c; border-radius: 2px; background: transparent; padding: 0">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg></button>
+</div>
+
+<div style="margin: 16px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #9d9d9d">NOW</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+
+<div style="position: relative; padding: 10px 12px 10px 14px; border: 1px solid #5c5220; border-radius: 6px; background: rgba(255,255,255,0.04); overflow: hidden">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #cca700"></div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #cca700"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg>Asking you</span>
+<span style="font-size: 11px; color: #9d9d9d">ai_patro</span>
+</div>
+<p style="margin: 4px 0 0; font-weight: 600; color: #e7e7e7">Release 1.4 build</p>
+<p style="margin: 2px 0 0; color: #9d9d9d">add release notes and bump the build number</p>
+<p style="margin: 8px 0 0; padding: 6px 8px; border-radius: 4px; background: rgba(204,167,0,0.13); color: #e7e7e7">Commit the language fix only, or both commits? · waiting 2:14</p>
+<div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px"><strong style="font-weight: 600; color: #e7e7e7">3:40</strong><span style="color: #9d9d9d">clock paused while Claude waits</span></div>
+<div style="height: 4px; margin-top: 5px; border-radius: 2px; background: rgba(204,167,0,0.22)"><div style="width: 55%; height: 4px; border-radius: 2px; background: #cca700"></div></div>
+<p style="margin: 4px 0 0; font-size: 11px; color: #9d9d9d">12 tools · 2 files +40 −3</p>
+<div style="display: flex; gap: 6px; margin-top: 10px">
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Changes</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Transcript</button>
+</div>
+</div>
+
+<div style="position: relative; padding: 10px 12px 10px 14px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04); overflow: hidden">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #0078d4"></div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #4daafc"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#4daafc" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>Working</span>
+<span style="font-size: 11px; color: #9d9d9d">car · 1 queued</span>
+</div>
+<p style="margin: 4px 0 0; font-weight: 600; color: #e7e7e7">Admin redesign</p>
+<p style="margin: 2px 0 0; color: #9d9d9d">enhance all admin page</p>
+<div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px"><strong style="font-weight: 600; color: #e7e7e7">1:12</strong><span style="color: #9d9d9d">~1:18 left</span></div>
+<div style="height: 4px; margin-top: 5px; border-radius: 2px; background: rgba(0,120,212,0.25)"><div style="width: 48%; height: 4px; border-radius: 2px; background: #0078d4"></div></div>
+<p style="margin: 8px 0 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><b style="font-weight: 600; color: #e7e7e7">Bash</b><span style="color: #9d9d9d"> · 0:42 — npm run build</span></p>
+<p style="margin: 4px 0 0; font-size: 11px; color: #9d9d9d">23 tools · tasks 3/7 · Styling fleet pages · 6 files +120 −14</p>
+<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 3px; font-size: 11px">
+<div style="display: flex; gap: 6px"><span style="flex: none; width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; background: #0078d4"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Enhance admin fleet pages<span style="color: #9d9d9d"> · 14 tools · Edit · fleet.php</span></span></div>
+<div style="display: flex; gap: 6px"><span style="flex: none; width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; background: #73c991"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Enhance admin client pages<span style="color: #9d9d9d"> · reporting back</span></span></div>
+</div>
+<div style="display: flex; gap: 6px; margin-top: 10px">
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Changes</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Transcript</button>
+</div>
+</div>
+</div>
+
+<div style="margin: 16px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #9d9d9d">TODAY</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Prompts</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">34</div><div style="font-size: 11px; color: #9d9d9d">2m 10s median</div></div>
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Claude time</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">1h 42m</div><div style="font-size: 11px; color: #9d9d9d">excludes waiting</div></div>
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Waiting on you</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">9m 20s</div><div style="font-size: 11px; color: #9d9d9d">6 times</div></div>
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Files changed</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">41</div><div style="font-size: 11px; color: #9d9d9d">+1,204 −310</div></div>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin: 16px 0 8px"><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #9d9d9d">RECENT</span><a href="#" style="font-size: 12px; color: #4daafc">Clear</a></div>
+<div style="border: 1px solid #2b2b2b; border-radius: 6px; overflow: hidden">
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; background: rgba(255,255,255,0.07)">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#73c991" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Finished" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">on scroll load the list in available cars</span>
+<span style="font-size: 11px; color: #9d9d9d">10:42 AM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 3m 00s · 3 files +96 −12</span>
+</div>
+<div style="padding: 0 10px 10px 34px; background: rgba(255,255,255,0.07)">
+<p style="margin: 0 0 6px; color: #b5b5b5; font-style: italic">“The Available Cars list now loads as you scroll.”</p>
+<p style="margin: 0 0 6px; font-size: 11px; color: #9d9d9d">21 tool calls · waited 0m 40s for you</p>
+<div style="display: flex; flex-direction: column; font-size: 12px">
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">index.php</a><span style="color: #9d9d9d">+60 −8</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">js/main.js</a><span style="color: #9d9d9d">+30 −4</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">ajax_cars.php</a><span style="color: #9d9d9d">new · +6 −0</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px">
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Review changes</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Copy prompt</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Transcript</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#73c991" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Finished" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">push it</span>
+<span style="font-size: 11px; color: #9d9d9d">10:31 AM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 43s</span>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#f48771" stroke-width="1.8" stroke-linecap="round" aria-label="Stopped with an error" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">rename the theme across the plugin</span>
+<span style="font-size: 11px; color: #9d9d9d">9:58 AM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">mas · 5m 46s · Stopped with an error</span>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Hit a usage limit" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 5v3.2l2.2 1.4"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">fix the display issue on the report page</span>
+<span style="font-size: 11px; color: #9d9d9d">Sep 26</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">troublelens · 9m 43s · 1 file +1 −0 · Hit a usage limit</span>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#9d9d9d" stroke-width="1.6" stroke-linejoin="round" aria-label="Interrupted" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M5 5h6v6H5z"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">admin width full width</span>
+<span style="font-size: 11px; color: #9d9d9d">Sep 26</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 1m 04s · Interrupted</span>
+</div>
+</div>
+
+<div style="margin-top: auto; padding-top: 10px; border-top: 1px solid #2b2b2b; font-size: 11px; color: #9d9d9d; display: flex; flex-direction: column; gap: 6px">
+<p style="margin: 0">Questions and plan approvals are detected from the transcript. Permission prompts leave no trace there until answered — enable the hook to be alerted to those too.</p>
+<button type="button" style="align-self: flex-start; height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Enable permission alerts</button>
+</div>
+</div>
+
+<div style="height: 22px; display: flex; align-items: center; gap: 4px; padding: 0 8px; font-size: 11px; font-weight: 700; color: #cccccc; border-top: 1px solid #2b2b2b; flex: none">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg>
+<span>SESSIONS</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":420,"height":1400}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

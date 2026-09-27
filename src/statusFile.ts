@@ -4,14 +4,26 @@ import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Estimator } from './estimator';
+import {
+	backgroundAgents,
+	byUrgency,
+	changedFiles,
+	currentStep,
+	errorAdvice,
+	fileTotals,
+	headline,
+	liveState,
+	projectName,
+	sessionTitle,
+	taskProgress
+} from './present';
+import { powershellPath } from './platform';
 import { claudeHome } from './transcriptWatcher';
 import { TurnTracker } from './turnTracker';
+import { TurnSummary } from './types';
 
-/** The absolute path, so a shadowed `powershell` on PATH cannot change what gets launched. */
-function powershellPath(): string {
-	const root = process.env.SystemRoot || 'C:\\Windows';
-	return path.join(root, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
-}
+/** Finished turns stay on the widget this long, so a glance after walking back still shows the result. */
+const RECENT_WINDOW_MS = 3 * 60_000;
 
 /**
  * Publishes the current state to a small JSON file and launches the desktop widget that reads it.
@@ -27,7 +39,8 @@ export class StatusFile implements vscode.Disposable {
 	constructor(
 		private readonly tracker: TurnTracker,
 		private readonly estimator: Estimator,
-		private readonly extensionPath: string
+		private readonly extensionPath: string,
+		private readonly recent: () => TurnSummary[] = () => []
 	) {
 		this.timer = setInterval(() => this.write(), 1000);
 	}
@@ -63,34 +76,78 @@ export class StatusFile implements vscode.Disposable {
 	write(): void {
 		const now = Date.now();
 		// Not filtered by scope: the widget is a desktop-wide view, and a session in another project is
-		// exactly the one you are most likely to have walked away from.
-		const sessions = this.tracker
-			.getActiveTurns()
-			.map(({ session, turn }) => {
-				const estimate = this.estimator.current(turn, now);
-				const lastStep = turn.steps.length ? turn.steps[turn.steps.length - 1].label : 'thinking';
+		// exactly the one you are most likely to have walked away from. Most urgent first.
+		const sessions = byUrgency(this.tracker.getActiveTurns(), now).map(({ session, turn }) => {
+			const estimate = this.estimator.current(turn, now);
+			const step = currentStep(turn, now);
+			const tasks = taskProgress(session, turn);
+			const totals = fileTotals(changedFiles(turn));
+			return {
+				project: projectName(session),
+				title: sessionTitle(session) ?? '',
+				prompt: turn.prompt.slice(0, 160),
+				state: liveState(turn, now),
+				elapsedMs: now - turn.startedAt,
+				etaMs: estimate.wallTotalMs,
+				progress: estimate.progress,
+				confident: estimate.confident,
+				lastStep: step.label,
+				stepDetail: step.detail ?? '',
+				stepMs: step.runningMs ?? 0,
+				tools: turn.toolCount,
+				errors: turn.errorCount,
+				tasksDone: tasks?.done ?? 0,
+				tasksTotal: tasks?.total ?? 0,
+				task: tasks?.current ?? '',
+				agents: backgroundAgents(session, turn, now).length,
+				waitKind: turn.wait?.kind ?? '',
+				waitDetail: turn.wait?.detail ?? '',
+				waitMs: turn.wait ? now - turn.wait.since : 0,
+				retry: turn.retry ? `${turn.retry.attempt}/${turn.retry.max} ${turn.retry.message}` : '',
+				files: totals.count,
+				added: totals.added,
+				removed: totals.removed
+			};
+		});
+		const recent = this.recent()
+			.filter((item) => now - item.endedAt < RECENT_WINDOW_MS && item.status !== 'abandoned')
+			.slice(0, 3)
+			.map((item) => {
+				const totals = fileTotals(item.files);
 				return {
-					project: session.cwd ? path.basename(session.cwd) : session.sessionId.slice(0, 8),
-					prompt: turn.prompt.slice(0, 160),
-					elapsedMs: now - turn.startedAt,
-					etaMs: estimate.totalMs,
-					progress: estimate.progress,
-					confident: estimate.confident,
-					lastStep,
-					tools: turn.toolCount
+					project: item.project,
+					title: item.title ?? '',
+					status: item.status,
+					endedAt: item.endedAt,
+					durationMs: item.endedAt - item.startedAt,
+					tools: item.tools,
+					files: totals.count,
+					added: totals.added,
+					removed: totals.removed,
+					headline:
+						item.status === 'done'
+							? headline(item.finalText, 90) ?? ''
+							: errorAdvice(item)
 				};
 			});
+		const limitResetsAt =
+			this.tracker
+				.getSessions()
+				.map((session) => session.limitResetsAt ?? 0)
+				.filter((resetsAt) => resetsAt > now)
+				.sort((a, b) => a - b)[0] ?? null;
 
-		// Once the last prompt ends, write the empty state a single time and then stop rewriting, so the
-		// widget's staleness check can tell "nothing running" from "VS Code went away".
-		if (!sessions.length && this.lastWriteWasEmpty) {
+		// Once nothing is running or recent, write the empty state a single time and then stop rewriting,
+		// so the widget's staleness check can tell "nothing running" from "VS Code went away".
+		const empty = !sessions.length && !recent.length && !limitResetsAt;
+		if (empty && this.lastWriteWasEmpty) {
 			return;
 		}
-		this.lastWriteWasEmpty = sessions.length === 0;
+		this.lastWriteWasEmpty = empty;
 
 		try {
 			fs.mkdirSync(this.directory, { recursive: true });
-			const payload = JSON.stringify({ writtenAt: now, sessions });
+			const payload = JSON.stringify({ v: 2, writtenAt: now, sessions, recent, limitResetsAt });
 			const temporary = `${this.file}.${process.pid}.tmp`;
 			// Write-then-rename, so the widget never reads a half-written file.
 			fs.writeFileSync(temporary, payload, 'utf8');

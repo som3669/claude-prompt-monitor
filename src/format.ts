@@ -19,6 +19,18 @@ export function formatClock(ms: number): string {
 	return `${minutes}:${pad(seconds)}`;
 }
 
+/** Wall-clock time of day in the user's locale, e.g. "12:25 PM". */
+export function formatTimeOfDay(at: number): string {
+	return new Date(at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+export function formatTokens(tokens: number): string {
+	if (tokens >= 1_000_000) {
+		return `${(tokens / 1_000_000).toFixed(1)}M`;
+	}
+	return tokens >= 1000 ? `${(tokens / 1000).toFixed(1)}k` : String(tokens);
+}
+
 export function truncate(text: string, max: number): string {
 	return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }

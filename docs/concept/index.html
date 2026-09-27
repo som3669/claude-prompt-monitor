@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Prompt Monitor concept</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+:root { color-scheme: light; }
+body { margin: 0; padding: 40px 16px 80px; background: #dedad0; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1b1a17; }
+header { max-width: 1440px; margin: 0 auto 32px; }
+header h1 { margin: 0 0 6px; font-family: Fraunces, Georgia, serif; font-size: 36px; }
+header p { margin: 0; color: #4a4843; }
+section { max-width: 1440px; margin: 0 auto 48px; }
+section > h2 { margin: 0 0 12px; font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #4a4843; }
+.frame { overflow-x: auto; }
+.board { box-shadow: 0 10px 30px rgba(0,0,0,.18); overflow: hidden; }
+.board button { cursor: default; }
+</style>
+</head>
+<body>
+<header>
+<h1>Claude Prompt Monitor — concept design</h1>
+<p>Static preview of the concept canvas. The sources (<code>*.dc.html</code>, <code>canvas.json</code>) sit beside this file.</p>
+</header>
+<section aria-label="The concept">
+<h2>The concept</h2>
+<div class="frame"><div class="board" style="width: 1440px; height: 1000px">
+<div style="width: 1440px; height: 1000px; box-sizing: border-box; padding: 64px 72px; color: #1b1a17; background: #f6f4ef; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 14px; max-width: 980px">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em; color: #5c5a53">CLAUDE PROMPT MONITOR · VS CODE EXTENSION · CONCEPT</div>
+<h1 style="margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 60px; line-height: 1.05; letter-spacing: -0.01em">Know the moment Claude needs you — and the moment it is done.</h1>
+<p style="margin: 0; font-size: 20px; line-height: 1.5; color: #4a4843; max-width: 860px">A long prompt is something you walk away from. The monitor spends your attention only when it is worth it, and answers “what happened?” in one glance when you come back. Every surface — status bar, Monitor panel, notifications, desktop widget — shows the same state.</p>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">WHILE A PROMPT RUNS, IT IS IN ONE OF FOUR STATES</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b77900" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg>
+<span>Needs you</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">Claude asked a question, has a plan to approve, or is showing a permission prompt. It cannot continue.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">Amber everywhere · the question itself in the notification · the ETA clock pauses</p>
+</div>
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#2f6fdb" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>
+<span>Working</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">Generating, or running tools. Progress comes from past prompts and from Claude’s own task list.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">Elapsed / ETA · the current step and how long it has run · 3/7 tasks</p>
+</div>
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b77900" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5V5h-2.5"></path></svg>
+<span>Retrying</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">The API call failed — overloaded, connection dropped — and Claude Code is retrying it.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">retrying 3/10 · the error in plain words</p>
+</div>
+<div style="background: #ffffff; border: 1px solid #e3dfd6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 17px">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#56688f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM10.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM2 13c0-2 1.6-3.5 3.5-3.5S9 11 9 13M7 13c0-2 1.6-3.5 3.5-3.5S14 11 14 13"></path></svg>
+<span>Agents</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.45">The reply is done, but agents it launched in the background are still working. Claude resumes when they report back.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.45; color: #5c5a53">Which agents, and what each is doing right now</p>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">AND FOUR WAYS IT ENDS</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Done</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">Claude’s closing sentence, the files it changed, and one click to see exactly that prompt’s diff.</span></div>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b3261e" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Stopped</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">With what to do about it: “sign-in expired — run /login”, “API overloaded — try again”.</span></div>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#b77900" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 5v3.2l2.2 1.4"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Usage limit</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">The reset time, the status bar keeps it until then, and a second alert when it resets.</span></div>
+</div>
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="#5c5a53" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M5 5h6v6H5z"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600">Interrupted</span><span style="font-size: 14px; line-height: 1.45; color: #4a4843">Ends at once, no notification — you pressed stop, you are right there.</span></div>
+</div>
+</div>
+</div>
+
+<div style="margin-top: auto; border-top: 1px solid #d9d4c8; padding-top: 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 24px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">BUILT ON WHAT THE TRANSCRIPTS ACTUALLY SAY</div>
+<div style="font-size: 13px; color: #5c5a53">2,586 prompts in this machine’s Claude Code transcripts, July–September 2026</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Times Claude stopped to ask you</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">104</div>
+<div style="font-size: 13px; color: #5c5a53">median wait 46 s · 1 in 10 waited over 6 min — the monitor used to call them “running”</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Prompts interrupted</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">6.4%</div>
+<div style="font-size: 13px; color: #5c5a53">each one left a spinner running for up to 30 minutes; now they end at once</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Turns that edit files</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">37%</div>
+<div style="font-size: 13px; color: #5c5a53">median 2 files — 70% of changed files have an exact before-state for a per-prompt diff</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 14px; color: #4a4843">Token overcount, fixed</div>
+<div style="font-size: 40px; font-weight: 600; line-height: 1.1">1.8×</div>
+<div style="font-size: 13px; color: #5c5a53">one transcript entry per content block, each repeating the usage — and native toasts never ran on Windows</div>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section aria-label="Built now, and next">
+<h2>Built now, and next</h2>
+<div class="frame"><div class="board" style="width: 900px; height: 1000px">
+<div style="width: 900px; height: 1000px; box-sizing: border-box; padding: 64px 64px; color: #1b1a17; background: #efece4; display: flex; flex-direction: column; gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em; color: #5c5a53">STATUS · SEPTEMBER 2026</div>
+<h2 style="margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 44px; line-height: 1.08">Built in this pass, and what could come next</h2>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">BUILT — IN THE EXTENSION, UNRELEASED</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px">
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Needs-you detection</b> — questions and plan approvals from the transcript; permission prompts through an opt-in hook</span></div>
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Monitor panel</b> — Now, Today and Recent, most urgent first</span></div>
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Per-prompt diffs</b> from Claude Code’s file-history backups</span></div>
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Background agents</b> hold the prompt open until they report back; their progress is followed</span></div>
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Retries, limits, errors</b> with what to do; a second alert when a limit resets</span></div>
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Honest clock</b> — ETA pauses while Claude waits on you; waits left out of timing history</span></div>
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Survives a reload</b> — the last minutes of transcripts are replayed</span></div>
+<div style="display: flex; gap: 10px"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#237a4b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg><span style="font-size: 15px; line-height: 1.45"><b style="font-weight: 600">Fixes</b> — native toasts and sound on Windows, interrupts, token counts, duplicate history</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: #5c5a53">NEXT — IDEAS, NOT BUILT</div>
+<div style="display: flex; flex-direction: column; border-top: 1px solid #d9d4c8">
+<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid #d9d4c8"><span style="font-weight: 600">Jump to the exact tab</span><span style="font-size: 15px; line-height: 1.45; color: #4a4843">Open Claude focuses the Claude panel, not the session’s own tab. Needs a command from the Claude Code extension that takes a session id.</span></div>
+<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid #d9d4c8"><span style="font-weight: 600">Quiet hours</span><span style="font-size: 15px; line-height: 1.45; color: #4a4843">Hold “done” notifications during focus time; let “needs you” and errors through.</span></div>
+<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid #d9d4c8"><span style="font-weight: 600">Phone push when away</span><span style="font-size: 15px; line-height: 1.45; color: #4a4843">Opt-in ntfy or Pushover for needs-you and done — the one case the desktop cannot reach.</span></div>
+<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid #d9d4c8"><span style="font-weight: 600">Context meter</span><span style="font-size: 15px; line-height: 1.45; color: #4a4843">Context size is already tracked per turn; show how close a session is to auto-compaction.</span></div>
+<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid #d9d4c8"><span style="font-weight: 600">Weekly digest</span><span style="font-size: 15px; line-height: 1.45; color: #4a4843">Where Claude’s time went by project, how long you kept it waiting, what failed and why.</span></div>
+<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid #d9d4c8"><span style="font-weight: 600">Widget stack</span><span style="font-size: 15px; line-height: 1.45; color: #4a4843">One row per running session instead of “+2 more”, and a click that brings VS Code forward.</span></div>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section aria-label="Monitor panel (sidebar)">
+<h2>Monitor panel (sidebar)</h2>
+<div class="frame"><div class="board" style="width: 420px; height: 1400px">
+<div style="width: 420px; height: 1400px; box-sizing: border-box; color: #cccccc; background: #181818; border-right: 1px solid #2b2b2b; display: flex; flex-direction: column; font-size: 13px; line-height: 1.45">
+<div style="height: 35px; display: flex; align-items: center; padding: 0 20px; font-size: 11px; letter-spacing: 0.04em; color: #bbbbbb; flex: none">CLAUDE PROMPT MONITOR</div>
+<div style="height: 22px; display: flex; align-items: center; gap: 4px; padding: 0 8px; font-size: 11px; font-weight: 700; color: #cccccc; border-top: 1px solid #2b2b2b; flex: none">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg>
+<span style="flex-grow: 1">MONITOR</span>
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5h11v9h-11zM2.5 6h11"></path></svg>
+</div>
+
+<div style="padding: 8px 12px 16px; display: flex; flex-direction: column; flex-grow: 1">
+<div style="display: flex; gap: 6px">
+<button type="button" style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 6px; height: 28px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 3.5h11v9h-11zM2.5 6h11"></path></svg>Close desktop widget</button>
+<button type="button" aria-label="Completion notifications on" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid #3c3c3c; border-radius: 2px; background: transparent; padding: 0">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg></button>
+</div>
+
+<div style="margin: 16px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #9d9d9d">NOW</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+
+<div style="position: relative; padding: 10px 12px 10px 14px; border: 1px solid #5c5220; border-radius: 6px; background: rgba(255,255,255,0.04); overflow: hidden">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #cca700"></div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #cca700"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg>Asking you</span>
+<span style="font-size: 11px; color: #9d9d9d">ai_patro</span>
+</div>
+<p style="margin: 4px 0 0; font-weight: 600; color: #e7e7e7">Release 1.4 build</p>
+<p style="margin: 2px 0 0; color: #9d9d9d">add release notes and bump the build number</p>
+<p style="margin: 8px 0 0; padding: 6px 8px; border-radius: 4px; background: rgba(204,167,0,0.13); color: #e7e7e7">Commit the language fix only, or both commits? · waiting 2:14</p>
+<div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px"><strong style="font-weight: 600; color: #e7e7e7">3:40</strong><span style="color: #9d9d9d">clock paused while Claude waits</span></div>
+<div style="height: 4px; margin-top: 5px; border-radius: 2px; background: rgba(204,167,0,0.22)"><div style="width: 55%; height: 4px; border-radius: 2px; background: #cca700"></div></div>
+<p style="margin: 4px 0 0; font-size: 11px; color: #9d9d9d">12 tools · 2 files +40 −3</p>
+<div style="display: flex; gap: 6px; margin-top: 10px">
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Changes</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Transcript</button>
+</div>
+</div>
+
+<div style="position: relative; padding: 10px 12px 10px 14px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04); overflow: hidden">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #0078d4"></div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #4daafc"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#4daafc" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>Working</span>
+<span style="font-size: 11px; color: #9d9d9d">car · 1 queued</span>
+</div>
+<p style="margin: 4px 0 0; font-weight: 600; color: #e7e7e7">Admin redesign</p>
+<p style="margin: 2px 0 0; color: #9d9d9d">enhance all admin page</p>
+<div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px"><strong style="font-weight: 600; color: #e7e7e7">1:12</strong><span style="color: #9d9d9d">~1:18 left</span></div>
+<div style="height: 4px; margin-top: 5px; border-radius: 2px; background: rgba(0,120,212,0.25)"><div style="width: 48%; height: 4px; border-radius: 2px; background: #0078d4"></div></div>
+<p style="margin: 8px 0 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><b style="font-weight: 600; color: #e7e7e7">Bash</b><span style="color: #9d9d9d"> · 0:42 — npm run build</span></p>
+<p style="margin: 4px 0 0; font-size: 11px; color: #9d9d9d">23 tools · tasks 3/7 · Styling fleet pages · 6 files +120 −14</p>
+<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 3px; font-size: 11px">
+<div style="display: flex; gap: 6px"><span style="flex: none; width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; background: #0078d4"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Enhance admin fleet pages<span style="color: #9d9d9d"> · 14 tools · Edit · fleet.php</span></span></div>
+<div style="display: flex; gap: 6px"><span style="flex: none; width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; background: #73c991"></span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Enhance admin client pages<span style="color: #9d9d9d"> · reporting back</span></span></div>
+</div>
+<div style="display: flex; gap: 6px; margin-top: 10px">
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Changes</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Transcript</button>
+</div>
+</div>
+</div>
+
+<div style="margin: 16px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #9d9d9d">TODAY</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Prompts</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">34</div><div style="font-size: 11px; color: #9d9d9d">2m 10s median</div></div>
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Claude time</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">1h 42m</div><div style="font-size: 11px; color: #9d9d9d">excludes waiting</div></div>
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Waiting on you</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">9m 20s</div><div style="font-size: 11px; color: #9d9d9d">6 times</div></div>
+<div style="padding: 8px 10px; border: 1px solid #2b2b2b; border-radius: 6px; background: rgba(255,255,255,0.04)"><div style="font-size: 11px; color: #9d9d9d">Files changed</div><div style="margin-top: 2px; font-size: 18px; font-weight: 600; color: #e7e7e7">41</div><div style="font-size: 11px; color: #9d9d9d">+1,204 −310</div></div>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin: 16px 0 8px"><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: #9d9d9d">RECENT</span><a href="#" style="font-size: 12px; color: #4daafc">Clear</a></div>
+<div style="border: 1px solid #2b2b2b; border-radius: 6px; overflow: hidden">
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; background: rgba(255,255,255,0.07)">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#73c991" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Finished" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">on scroll load the list in available cars</span>
+<span style="font-size: 11px; color: #9d9d9d">10:42 AM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 3m 00s · 3 files +96 −12</span>
+</div>
+<div style="padding: 0 10px 10px 34px; background: rgba(255,255,255,0.07)">
+<p style="margin: 0 0 6px; color: #b5b5b5; font-style: italic">“The Available Cars list now loads as you scroll.”</p>
+<p style="margin: 0 0 6px; font-size: 11px; color: #9d9d9d">21 tool calls · waited 0m 40s for you</p>
+<div style="display: flex; flex-direction: column; font-size: 12px">
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">index.php</a><span style="color: #9d9d9d">+60 −8</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">js/main.js</a><span style="color: #9d9d9d">+30 −4</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">ajax_cars.php</a><span style="color: #9d9d9d">new · +6 −0</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px">
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Review changes</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Copy prompt</button>
+<button type="button" style="height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Transcript</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#73c991" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Finished" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">push it</span>
+<span style="font-size: 11px; color: #9d9d9d">10:31 AM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 43s</span>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#f48771" stroke-width="1.8" stroke-linecap="round" aria-label="Stopped with an error" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">rename the theme across the plugin</span>
+<span style="font-size: 11px; color: #9d9d9d">9:58 AM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">mas · 5m 46s · Stopped with an error</span>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Hit a usage limit" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 5v3.2l2.2 1.4"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">fix the display issue on the report page</span>
+<span style="font-size: 11px; color: #9d9d9d">Sep 26</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">troublelens · 9m 43s · 1 file +1 −0 · Hit a usage limit</span>
+</div>
+
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 7px 10px; border-top: 1px solid #2b2b2b">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#9d9d9d" stroke-width="1.6" stroke-linejoin="round" aria-label="Interrupted" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M5 5h6v6H5z"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e7e7e7">admin width full width</span>
+<span style="font-size: 11px; color: #9d9d9d">Sep 26</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 1m 04s · Interrupted</span>
+</div>
+</div>
+
+<div style="margin-top: auto; padding-top: 10px; border-top: 1px solid #2b2b2b; font-size: 11px; color: #9d9d9d; display: flex; flex-direction: column; gap: 6px">
+<p style="margin: 0">Questions and plan approvals are detected from the transcript. Permission prompts leave no trace there until answered — enable the hook to be alerted to those too.</p>
+<button type="button" style="align-self: flex-start; height: 24px; padding: 0 8px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Enable permission alerts</button>
+</div>
+</div>
+
+<div style="height: 22px; display: flex; align-items: center; gap: 4px; padding: 0 8px; font-size: 11px; font-weight: 700; color: #cccccc; border-top: 1px solid #2b2b2b; flex: none">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg>
+<span>SESSIONS</span>
+</div>
+</div>
+</div></div>
+</section>
+<section aria-label="Status bar states">
+<h2>Status bar states</h2>
+<div class="frame"><div class="board" style="width: 1440px; height: 600px">
+<div style="width: 1440px; height: 600px; box-sizing: border-box; padding: 44px 48px; color: #e8e6e1; background: #1f1f1f; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">Status bar — always the most urgent thing</h2>
+<p style="margin: 0; font-size: 15px; color: #a9a7a1">One item, right side. Several sessions show a ×2 count and the most urgent one wins: needs you, then retrying, then working, then agents. Click opens the Monitor panel.</p>
+</div>
+<div style="display: grid; grid-template-columns: 880px minmax(0, 1fr); gap: 40px; align-items: start">
+<div style="display: flex; flex-direction: column; gap: 16px">
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Working</span> — elapsed / estimated total, then Claude’s task list. A ? marks a rough estimate.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>Claude 1:12 / ~2:30 · 3/7</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Needs you</span> — the theme’s warning colour, so it reads from across the room. The project says where.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 8px; height: 22px; background: #7a6400; color: #ffffff"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg>Claude needs you · ai_patro</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Retrying</span> — the API failed and Claude Code is on attempt 3 of 10. The hover says why.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 0 5.5 5.5"></path></svg>Claude retrying 3/10</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Agents</span> — the reply is done; background agents are out. The prompt is not finished until they report back.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM10.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM2 13c0-2 1.6-3.5 3.5-3.5S9 11 9 13M7 13c0-2 1.6-3.5 3.5-3.5S14 11 14 13"></path></svg>Claude · 2 agents running</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 13px; color: #c9c7c1"><span style="font-weight: 600; color: #f2f0eb">Usage limit</span> — nothing running, but a limit is in force. Stays until the reset, then a notification says so.</div>
+<div style="height: 22px; background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 12px; color: #cccccc">
+<div style="display: flex; gap: 14px; align-items: center"><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 3v10M5 9c0-2 6-1 6-4M11 3.5a1.5 1.5 0 1 0 0 .01"></path></svg>main</span><span style="display: flex; align-items: center; gap: 4px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM6 6l4 4M10 6l-4 4"></path></svg>0<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" style="margin-left: 4px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>0</span></div>
+<div style="display: flex; gap: 14px; align-items: center"><span>Ln 42, Col 7</span><span>UTF-8</span><span>TypeScript</span>
+<span style="display: flex; align-items: center; gap: 5px; padding: 0 6px; height: 22px; color: #e2c08d"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#e2c08d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 5v3.2l2.2 1.4"></path></svg>Claude limit · resets 12:25 PM</span></div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; color: #a9a7a1">Hover — every running session, most urgent first</div>
+<div style="background: #202020; border: 1px solid #454545; border-radius: 6px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; line-height: 1.5; color: #cccccc; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.45)">
+<div><span style="font-weight: 600; color: #ffffff">ai_patro</span> — Release 1.4 build</div>
+<div style="color: #a8a8a8">add release notes and bump the build number</div>
+<div style="color: #e2c08d; display: flex; gap: 6px; align-items: flex-start"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#e2c08d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 3px"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.2 1.5H2.8L4 11zM6.5 13.5a1.5 1.5 0 0 0 3 0"></path></svg><span><span style="font-weight: 600">Waiting for you · 2:14</span> — Commit the language fix only, or both commits?</span></div>
+<div style="color: #a8a8a8">12 tools · 2 files (+40 −3)</div>
+<div style="height: 1px; background: #3c3c3c"></div>
+<div><span style="font-weight: 600; color: #ffffff">car</span> — Admin redesign</div>
+<div style="color: #a8a8a8">enhance all admin page</div>
+<div>elapsed 1:12 · about 1:18 left</div>
+<div>now: <span style="font-weight: 600">Bash</span> · 0:42 — npm run build</div>
+<div style="color: #a8a8a8">23 tools · tasks 3/7 · 6 files (+120 −14)</div>
+<div style="height: 1px; background: #3c3c3c"></div>
+<div style="display: flex; gap: 12px"><a href="#" style="color: #4daafc">Dashboard</a><a href="#" style="color: #4daafc">Open Claude</a></div>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section aria-label="Notifications">
+<h2>Notifications</h2>
+<div class="frame"><div class="board" style="width: 1440px; height: 600px">
+<div style="width: 1440px; height: 600px; box-sizing: border-box; padding: 44px 48px; color: #e8e6e1; background: #1f1f1f; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px">
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">In VS Code — with the answer, and the next click</h2>
+<p style="margin: 0; font-size: 15px; color: #a9a7a1">A wait notifies after 2.5 s, so questions answered at once never ping. Successful prompts under 15 s stay quiet; errors and limits always notify.</p>
+</div>
+
+<div style="background: #202020; border: 1px solid #3c3c3c; border-radius: 6px; padding: 12px 14px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>
+<span style="line-height: 1.45">Claude is asking you in ai_patro (Release 1.4 build): “Commit the language fix only, or both commits?”</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; color: #9d9d9d">Source: Claude Prompt Monitor</span>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Show</button>
+</div>
+</div>
+</div>
+
+<div style="background: #202020; border: 1px solid #3c3c3c; border-radius: 6px; padding: 12px 14px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4daafc" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 7.2v4M8 4.8v.2"></path></svg>
+<span style="line-height: 1.45">Claude finished — car (Admin redesign) · 20m 44s · 5 files (+212 −48) · 32 tool calls · 3 agents — All 13 admin pages and the admin login are redesigned in the same style as the dashboard.</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; color: #9d9d9d">Source: Claude Prompt Monitor</span>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Review Changes</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Show</button>
+</div>
+</div>
+</div>
+
+<div style="background: #202020; border: 1px solid #3c3c3c; border-radius: 6px; padding: 12px 14px; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; box-shadow: 0 6px 18px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px; align-items: flex-start">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#cca700" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M8 2.5l6 11H2l6-11zM8 7v3M8 11.8v.2"></path></svg>
+<span style="line-height: 1.45">Claude stopped — mas · 0s · 0 tool calls — sign-in expired — run /login in Claude Code, then send the prompt again.</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; color: #9d9d9d">Source: Claude Prompt Monitor</span>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px">Open Claude</button>
+<button type="button" style="height: 24px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Show</button>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">On the desktop — when VS Code is minimised</h2>
+<p style="margin: 0; font-size: 15px; color: #a9a7a1">notificationTarget: native or both. The text reaches Windows through environment variables, never a shell string. Launched without detached, the fix that makes them appear at all.</p>
+</div>
+
+<div style="background: #2b2b2b; border: 1px solid #3a3a3a; border-radius: 8px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #a8a8a8">Windows PowerShell</div>
+<div style="font-size: 14px; font-weight: 600; color: #ffffff">Claude is asking you — ai_patro (Release 1.4 build)</div>
+<div style="font-size: 13px; color: #d0d0d0; line-height: 1.45">“Commit the language fix only, or both commits?”</div>
+</div>
+
+<div style="background: #2b2b2b; border: 1px solid #3a3a3a; border-radius: 8px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #a8a8a8">Windows PowerShell</div>
+<div style="font-size: 14px; font-weight: 600; color: #ffffff">Claude finished — car (Admin redesign)</div>
+<div style="font-size: 13px; color: #d0d0d0; line-height: 1.45">20m 44s · 5 files (+212 −48) · 32 tool calls · 3 agents<br>All 13 admin pages and the admin login are redesigned in the same style as the dashboard.</div>
+</div>
+
+<div style="background: #2b2b2b; border: 1px solid #3a3a3a; border-radius: 8px; padding: 14px 16px; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; color: #a8a8a8">Windows PowerShell</div>
+<div style="font-size: 14px; font-weight: 600; color: #ffffff">Claude is available again</div>
+<div style="font-size: 13px; color: #d0d0d0; line-height: 1.45">Claude’s usage limit has reset — you can pick up where you left off in troublelens.</div>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section aria-label="Desktop widget states">
+<h2>Desktop widget states</h2>
+<div class="frame"><div class="board" style="width: 1000px; height: 640px">
+<div style="width: 1000px; height: 640px; box-sizing: border-box; padding: 40px 48px; color: #e8e6e1; background: #2a2e35; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; color: #f2f0eb">Desktop widget — above every window, even with VS Code closed</h2>
+<p style="margin: 0; font-size: 15px; color: #b9b7b1">The most urgent session first, a colour strip for the state, and the last result kept on screen for three minutes after a prompt ends.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 48px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #d97757"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">ai_patro · Release 1.4 build</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">1:23 / ~3:16   12 tools   3/7 tasks</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 131px; height: 4px; background: #d97757"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">Bash 0:42 - flutter build appbundle --release</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Working</span> — ETA, tools, tasks, and how long the current command has run</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 0 0 2px #eab308, 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #eab308"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Needs you · ai_patro · Release 1.…  +1 more</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #e4e4e7">Commit the language fix only, or both commits?</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #eab308"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">waiting 2:14   ·   the clock is paused</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Needs you</span> — jumps ahead of the running session and flashes once per new question</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #7d8caa"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">car · Admin redesign</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">7:40   reply done · 2 agents working</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #7d8caa"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">enhance all admin page</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Agents</span> — not “done” until the background agents report back</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #22c55e"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Done · car</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">4m 12s   ·   6 files +120 −14   ·   23 tools</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #22c55e"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">All 13 admin pages are redesigned in the same style as…</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Done</span> — Claude’s closing line, for three minutes after the prompt ends</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #ef4444"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Stopped · mas</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">5m 46s   ·   0 tools</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"><div style="width: 312px; height: 4px; background: #ef4444"></div></div>
+<div style="position: absolute; left: 14px; top: 70px; font-size: 11px; color: #a1a1aa">Anthropic's API was overloaded — try again in a moment.</div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Stopped</span> — the reason, in words you can act on</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; width: 340px; height: 104px; background: #18181b; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.45)">
+<div style="position: absolute; left: 0; top: 0; width: 3px; height: 104px; background: #2d2d32"></div>
+<div style="position: absolute; left: 14px; top: 11px; font-size: 12px; font-weight: 700; color: #f4f4f5">Claude is idle</div>
+<div style="position: absolute; right: 12px; top: 8px; font-size: 14px; color: #a1a1aa">×</div>
+<div style="position: absolute; left: 14px; top: 33px; font-size: 11px; color: #a1a1aa">Usage limit · resets at 12:25 PM</div>
+<div style="position: absolute; left: 14px; top: 56px; width: 312px; height: 4px; background: #2d2d32"></div>
+</div>
+<div style="font-size: 13px; color: #d4d2cc"><span style="font-weight: 600">Idle</span> — with any usage limit still in force</div>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section aria-label="Review what a prompt changed">
+<h2>Review what a prompt changed</h2>
+<div class="frame"><div class="board" style="width: 1340px; height: 640px">
+<div style="width: 1340px; height: 640px; box-sizing: border-box; padding: 40px 48px; color: #e8e6e1; background: #1f1f1f; display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 40px">
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; line-height: 1.2; color: #f2f0eb">Review exactly what one prompt changed</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #b9b7b1">Each file opens against its state just before Claude first touched it in that prompt — Claude Code’s own file-history backup. Other uncommitted work does not muddy it. Several files open together in the multi-file changes editor; without a backup it falls back to the git diff.</p>
+<div style="border: 1px solid #2b2b2b; border-radius: 6px; background: #181818; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc">
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 8px 10px">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#73c991" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Finished" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<span style="color: #e7e7e7">enhance all admin page</span>
+<span style="font-size: 11px; color: #9d9d9d">3:23 PM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 20m 44s · 3 files +96 −21</span>
+</div>
+<div style="padding: 0 10px 12px 34px; display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; color: #b5b5b5; font-style: italic">“All 13 admin pages and the admin login are redesigned in the same style as the dashboard.”</p>
+<div style="display: flex; flex-direction: column; font-size: 12px">
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">admin/fleet.php</a><span style="color: #9d9d9d">+48 −12</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">admin/admin.css</a><span style="color: #9d9d9d">+40 −9</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">admin/partials/nav.php</a><span style="color: #9d9d9d">new · +8 −0</span></div>
+</div>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 26px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px; box-shadow: 0 0 0 2px #1f1f1f, 0 0 0 4px #4daafc">Review changes</button>
+<button type="button" style="height: 26px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Copy prompt</button>
+</div>
+</div>
+</div>
+</div>
+
+<div style="border: 1px solid #2b2b2b; background: #1e1e1e; display: flex; flex-direction: column; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; overflow: hidden">
+<div style="height: 35px; display: flex; align-items: stretch; background: #181818; border-bottom: 1px solid #2b2b2b">
+<div style="display: flex; align-items: center; gap: 6px; padding: 0 14px; background: #1f1f1f; border-top: 1px solid #0078d4; color: #ffffff">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3h4v10H3zM9 3h4v10H9z"></path></svg>
+Claude: Admin redesign (3 files)</div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 10px; background: #252526; border-bottom: 1px solid #2b2b2b">
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg><span style="color: #e7e7e7">fleet.php</span><span style="color: #9d9d9d; font-size: 12px">admin</span></span>
+<span style="font-size: 12px"><span style="color: #81b88b">+48</span> <span style="color: #f48771">−12</span></span>
+</div>
+<div style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; line-height: 20px">
+<div style="display: flex"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">41</span><span style="white-space: pre">  &lt;div class="page"&gt;</span></div>
+<div style="display: flex; background: rgba(248,81,73,0.18)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">42</span><span style="white-space: pre; color: #ffb3ad">-   &lt;table border="1"&gt;</span></div>
+<div style="display: flex; background: rgba(248,81,73,0.18)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">43</span><span style="white-space: pre; color: #ffb3ad">-     &lt;tr&gt;&lt;th&gt;Plate&lt;/th&gt;&lt;th&gt;Model&lt;/th&gt;&lt;/tr&gt;</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">42</span><span style="white-space: pre; color: #aff5b4">+   &lt;section class="card fleet-grid"&gt;</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">43</span><span style="white-space: pre; color: #aff5b4">+     &lt;header class="card-head"&gt;Fleet&lt;/header&gt;</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">44</span><span style="white-space: pre; color: #aff5b4">+     &lt;?php foreach ($cars as $car): ?&gt;</span></div>
+<div style="display: flex"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">45</span><span style="white-space: pre">      …</span></div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 10px; background: #252526; border-top: 1px solid #2b2b2b; border-bottom: 1px solid #2b2b2b">
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg><span style="color: #e7e7e7">admin.css</span><span style="color: #9d9d9d; font-size: 12px">admin</span></span>
+<span style="font-size: 12px"><span style="color: #81b88b">+40</span> <span style="color: #f48771">−9</span></span>
+</div>
+<div style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; line-height: 20px">
+<div style="display: flex; background: rgba(248,81,73,0.18)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">12</span><span style="white-space: pre; color: #ffb3ad">- .page { max-width: 960px; }</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">12</span><span style="white-space: pre; color: #aff5b4">+ .page { max-width: none; padding: 32px 40px; }</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">13</span><span style="white-space: pre; color: #aff5b4">+ .card { border-radius: 14px; box-shadow: var(--lift); }</span></div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 10px; background: #252526; border-top: 1px solid #2b2b2b; border-bottom: 1px solid #2b2b2b">
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg><span style="color: #e7e7e7">nav.php</span><span style="color: #9d9d9d; font-size: 12px">admin/partials · new file</span></span>
+<span style="font-size: 12px"><span style="color: #81b88b">+8</span></span>
+</div>
+<div style="flex-grow: 1"></div>
+</div>
+</div>
+</div></div>
+</section>
+</body>
+</html>

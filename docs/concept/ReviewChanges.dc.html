@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Review what a prompt changed</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#e8e6e1;background:#1f1f1f}
+a{color:#4daafc}a:hover{color:#7cc0ff}
+</style>
+</helmet>
+<div style="width: 1340px; height: 640px; box-sizing: border-box; padding: 40px 48px; color: #e8e6e1; background: #1f1f1f; display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 40px">
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-size: 26px; font-weight: 600; line-height: 1.2; color: #f2f0eb">Review exactly what one prompt changed</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #b9b7b1">Each file opens against its state just before Claude first touched it in that prompt — Claude Code’s own file-history backup. Other uncommitted work does not muddy it. Several files open together in the multi-file changes editor; without a backup it falls back to the git diff.</p>
+<div style="border: 1px solid #2b2b2b; border-radius: 6px; background: #181818; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc">
+<div style="display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 2px 8px; padding: 8px 10px">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#73c991" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Finished" role="img" style="grid-row: span 2; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+<span style="color: #e7e7e7">enhance all admin page</span>
+<span style="font-size: 11px; color: #9d9d9d">3:23 PM</span>
+<span style="grid-column: 2 / span 2; font-size: 11px; color: #9d9d9d">car · 20m 44s · 3 files +96 −21</span>
+</div>
+<div style="padding: 0 10px 12px 34px; display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; color: #b5b5b5; font-style: italic">“All 13 admin pages and the admin login are redesigned in the same style as the dashboard.”</p>
+<div style="display: flex; flex-direction: column; font-size: 12px">
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">admin/fleet.php</a><span style="color: #9d9d9d">+48 −12</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">admin/admin.css</a><span style="color: #9d9d9d">+40 −9</span></div>
+<div style="display: flex; justify-content: space-between"><a href="#" style="color: #4daafc">admin/partials/nav.php</a><span style="color: #9d9d9d">new · +8 −0</span></div>
+</div>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 26px; padding: 0 10px; border: 0; border-radius: 2px; background: #0078d4; color: #ffffff; font: inherit; font-size: 12px; box-shadow: 0 0 0 2px #1f1f1f, 0 0 0 4px #4daafc">Review changes</button>
+<button type="button" style="height: 26px; padding: 0 10px; border: 0; border-radius: 2px; background: #313131; color: #cccccc; font: inherit; font-size: 12px">Copy prompt</button>
+</div>
+</div>
+</div>
+</div>
+
+<div style="border: 1px solid #2b2b2b; background: #1e1e1e; display: flex; flex-direction: column; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: #cccccc; overflow: hidden">
+<div style="height: 35px; display: flex; align-items: stretch; background: #181818; border-bottom: 1px solid #2b2b2b">
+<div style="display: flex; align-items: center; gap: 6px; padding: 0 14px; background: #1f1f1f; border-top: 1px solid #0078d4; color: #ffffff">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3h4v10H3zM9 3h4v10H9z"></path></svg>
+Claude: Admin redesign (3 files)</div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 10px; background: #252526; border-bottom: 1px solid #2b2b2b">
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg><span style="color: #e7e7e7">fleet.php</span><span style="color: #9d9d9d; font-size: 12px">admin</span></span>
+<span style="font-size: 12px"><span style="color: #81b88b">+48</span> <span style="color: #f48771">−12</span></span>
+</div>
+<div style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; line-height: 20px">
+<div style="display: flex"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">41</span><span style="white-space: pre">  &lt;div class="page"&gt;</span></div>
+<div style="display: flex; background: rgba(248,81,73,0.18)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">42</span><span style="white-space: pre; color: #ffb3ad">-   &lt;table border="1"&gt;</span></div>
+<div style="display: flex; background: rgba(248,81,73,0.18)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">43</span><span style="white-space: pre; color: #ffb3ad">-     &lt;tr&gt;&lt;th&gt;Plate&lt;/th&gt;&lt;th&gt;Model&lt;/th&gt;&lt;/tr&gt;</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">42</span><span style="white-space: pre; color: #aff5b4">+   &lt;section class="card fleet-grid"&gt;</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">43</span><span style="white-space: pre; color: #aff5b4">+     &lt;header class="card-head"&gt;Fleet&lt;/header&gt;</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">44</span><span style="white-space: pre; color: #aff5b4">+     &lt;?php foreach ($cars as $car): ?&gt;</span></div>
+<div style="display: flex"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">45</span><span style="white-space: pre">      …</span></div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 10px; background: #252526; border-top: 1px solid #2b2b2b; border-bottom: 1px solid #2b2b2b">
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg><span style="color: #e7e7e7">admin.css</span><span style="color: #9d9d9d; font-size: 12px">admin</span></span>
+<span style="font-size: 12px"><span style="color: #81b88b">+40</span> <span style="color: #f48771">−9</span></span>
+</div>
+<div style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; line-height: 20px">
+<div style="display: flex; background: rgba(248,81,73,0.18)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">12</span><span style="white-space: pre; color: #ffb3ad">- .page { max-width: 960px; }</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">12</span><span style="white-space: pre; color: #aff5b4">+ .page { max-width: none; padding: 32px 40px; }</span></div>
+<div style="display: flex; background: rgba(63,185,80,0.16)"><span style="width: 44px; text-align: right; padding-right: 10px; color: #6e7681">13</span><span style="white-space: pre; color: #aff5b4">+ .card { border-radius: 14px; box-shadow: var(--lift); }</span></div>
+</div>
+
+<div style="display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 10px; background: #252526; border-top: 1px solid #2b2b2b; border-bottom: 1px solid #2b2b2b">
+<span style="display: flex; align-items: center; gap: 6px"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#cccccc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4l4 4-4 4"></path></svg><span style="color: #e7e7e7">nav.php</span><span style="color: #9d9d9d; font-size: 12px">admin/partials · new file</span></span>
+<span style="font-size: 12px"><span style="color: #81b88b">+8</span></span>
+</div>
+<div style="flex-grow: 1"></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1340,"height":640}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

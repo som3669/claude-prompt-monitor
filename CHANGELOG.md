@@ -1,5 +1,67 @@
 # Change Log
 
+## 0.1.3
+
+### Added
+
+- **Knows when Claude is waiting on you.** A question (`AskUserQuestion`) or a plan to approve
+  (`ExitPlanMode`) turns the status bar amber (`Claude needs you`), puts that session first everywhere,
+  and sends a notification with the question itself. The estimate clock pauses while Claude waits, and
+  time spent waiting is left out of the timing history. Setting: `notifyOnWaiting`.
+- **Permission alerts (opt-in).** A permission prompt leaves no trace in the transcript until it is
+  answered, so `Claude Monitor: Install Permission Alert Hook` adds a Claude Code Notification hook
+  that tells the monitor the moment one appears. Your other hooks are kept, `settings.json` is backed up
+  first, and `Remove Permission Alert Hook` takes it out again.
+- **Monitor panel** in the sidebar: every running session as a card (most urgent first) with its state,
+  question, progress, current step, tasks, agents and changed files; today's numbers (prompts, time
+  Claude worked, time spent waiting on you, files changed); and a Recent list of finished prompts with
+  Claude's closing line, the files each changed, and Review changes / Copy prompt / Transcript / Open
+  Claude actions.
+- **Review what a prompt changed.** Each changed file opens against its state just before Claude first
+  edited it in that prompt, using Claude Code's own file-history backups, so the diff shows exactly that
+  prompt's work (several files open in the multi-file changes editor). Falls back to the git diff.
+- **Background agents.** Agents launched with `run_in_background` keep the prompt open until they report
+  back and Claude has dealt with their reports, so "finished" means finished. Agents' own transcripts
+  are followed, so the panel shows what each one is doing.
+- **Retries and limits.** API retries (`529 Overloaded`, connection drops) show as `retrying 3/10`. A
+  usage limit is reported with its reset time, the status bar shows it until then, and a second
+  notification says when the limit has reset (`notifyOnLimitReset`). Errors come with what to do about
+  them — for example "sign-in expired — run /login".
+- **Richer notifications:** the conversation's title, files changed with `+/−` lines, agents, time
+  spent waiting on you, and Claude's closing sentence; buttons for Review Changes and Open Claude.
+  Errors and limits are always reported, however quickly they happen.
+- Task progress from Claude's own task list (`3/7 tasks`) in the status bar, panel, tree and widget.
+- Conversation titles (Claude Code's generated title, or your `/rename`) instead of bare folder names.
+- The Sessions tree shows waits, errors, task lists, agents and changed files, with failed tool calls
+  marked and a live timer on a tool call that is still running.
+- The desktop widget shows the most urgent session first: amber and a flash when Claude needs you,
+  retries, background agents, task progress, and for three minutes after a prompt ends its result
+  (`Done · car — 4m 12s · 6 files +120 −14`). With VS Code closed it now detects questions and interrupts
+  from the transcripts too.
+- Tracking survives a window reload: the last few minutes of transcripts are replayed, so a prompt that
+  was already running is picked up instead of being missed.
+
+### Fixed
+
+- Native notifications and the completion sound never worked on Windows. They were spawned with
+  `detached: true` — the same DETACHED_PROCESS trap that broke the widget in 0.1.1: PowerShell exited in
+  ~80ms without running the script.
+- Interrupting a prompt left it "running" — spinner, climbing ETA — until the next prompt or 30 minutes
+  later. About 6% of prompts are interrupted. They now end at once, as interrupted.
+- Output tokens were counted about 1.8× too high: Claude Code writes one transcript entry per content
+  block, each carrying the whole message's usage.
+- Every VS Code start re-learned the same past prompts, piling duplicate records into the timing
+  history; existing duplicates are dropped.
+- A notification from a background task that Claude never answered (common when resuming a session)
+  no longer shows as a running prompt.
+- API errors that end a turn with a synthetic `stop_sequence` reply now end it instead of leaving it
+  running.
+
+### Changed
+
+- The sidebar's Widget panel is replaced by the Monitor panel; its button toggles the desktop widget as
+  before. `Ctrl+Alt+Shift+M` focuses the Monitor panel, and clicking the status bar item opens it.
+
 ## 0.1.2
 
 ### Added
