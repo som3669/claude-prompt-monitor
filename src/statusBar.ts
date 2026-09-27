@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Estimator } from './estimator';
-import { formatClock, formatTimeOfDay, truncate } from './format';
+import { formatClock, formatDuration, formatTimeOfDay, truncate } from './format';
 import {
 	backgroundAgents,
 	byUrgency,
@@ -18,14 +18,17 @@ import { Session, Turn } from './types';
 
 /**
  * One item that always shows the most urgent thing: Claude needs you, a retry, the running prompt with
- * its clock and ETA, or background agents. When nothing runs it shows an active usage limit, if any.
+ * its clock and ETA, or background agents. When nothing runs it shows an active usage limit, or how the
+ * last prompt went.
  */
 export class StatusBar implements vscode.Disposable {
 	private readonly item: vscode.StatusBarItem;
 	private timer?: NodeJS.Timeout;
 
 	constructor(private readonly tracker: TurnTracker, private readonly estimator: Estimator) {
-		this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+		// A fixed id gives it a stable entry in the status bar's right-click menu. A high priority places it
+		// at the left end of the right-hand group, clear of the items that get squeezed out on a crowded bar.
+		this.item = vscode.window.createStatusBarItem('claudePromptMonitor.status', vscode.StatusBarAlignment.Right, 10_000);
 		this.item.name = 'Claude Prompt Monitor';
 		this.item.command = 'claudePromptMonitor.showDashboard';
 		this.timer = setInterval(() => this.render(), 1000);
@@ -79,13 +82,41 @@ export class StatusBar implements vscode.Disposable {
 			.filter((resetsAt) => resetsAt > now)
 			.sort((a, b) => a - b)[0];
 		if (!limited) {
-			this.item.hide();
+			this.renderLastResult(now);
 			return;
 		}
 		this.item.text = `$(watch) Claude limit · resets ${formatTimeOfDay(limited)}`;
 		this.item.backgroundColor = undefined;
 		this.item.color = new vscode.ThemeColor('statusBarItem.warningForeground');
 		this.item.tooltip = `Claude hit its usage limit. It resets at ${formatTimeOfDay(limited)}.`;
+		this.item.show();
+	}
+
+	/** Nothing running: stay visible, so the item is never "missing", and say how the last prompt went. */
+	private renderLastResult(now: number): void {
+		const last = this.tracker
+			.getSessions()
+			.filter((session) => this.tracker.isInScope(session) && session.lastTurn?.endedAt)
+			.map((session) => ({ session, turn: session.lastTurn! }))
+			.sort((a, b) => (b.turn.endedAt ?? 0) - (a.turn.endedAt ?? 0))[0];
+		this.item.backgroundColor = undefined;
+		this.item.color = undefined;
+		const recent = last && now - (last.turn.endedAt ?? 0) < 30 * 60_000;
+		if (!recent) {
+			this.item.text = '$(comment-discussion) Claude';
+			this.item.tooltip = 'Claude Prompt Monitor: no prompt running. Click for the Monitor panel.';
+			this.item.show();
+			return;
+		}
+		const { session, turn } = last!;
+		const duration = formatDuration((turn.endedAt ?? now) - turn.startedAt);
+		const icon =
+			turn.status === 'done' ? '$(check)' : turn.status === 'error' ? '$(error)' : turn.status === 'limited' ? '$(watch)' : '$(debug-stop)';
+		const word = turn.status === 'done' ? 'done' : turn.status === 'error' ? 'stopped' : turn.status;
+		this.item.text = `${icon} Claude ${word} ${duration}`;
+		this.item.tooltip =
+			`No prompt running. Last: ${projectName(session)} — “${truncate(turn.prompt, 80)}”, ${word} in ${duration}, ` +
+			`${formatDuration(now - (turn.endedAt ?? now))} ago. Click for the Monitor panel.`;
 		this.item.show();
 	}
 

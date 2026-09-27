@@ -59,6 +59,9 @@
 
 ### Changed
 
+- The status bar item is always visible: between prompts it shows how the last one went (`✓ Claude done
+  4m 12s`, or just `Claude`), so it is never mistaken for missing. It sits at the left end of the right-hand
+  status bar group, where a crowded bar does not push it out.
 - The sidebar's Widget panel is replaced by the Monitor panel; its button toggles the desktop widget as
   before. `Ctrl+Alt+Shift+M` focuses the Monitor panel, and clicking the status bar item opens it.
 
