@@ -3,8 +3,8 @@
 VS Code extension that tracks every Claude Code prompt (VS Code extension and terminal sessions, any cwd): live progress, ETA learned from past prompts, when Claude is waiting on you (questions, plan approval, permission prompts via an opt-in hook), background agents, retries and usage limits, completion notifications with what changed, per-prompt diffs, a Monitor panel, and an always-on-top desktop widget that outlives VS Code.
 
 - Id `somshrestha.somshrestha-claude-prompt-monitor`, MIT. Own repo: https://github.com/som3669/claude-prompt-monitor (not the parent vs-code-extenstion-setup repo).
-- Current: v0.1.3 (released 2026-09-27; tags v0.1.0 to v0.1.3). Distributed as GitHub release `.vsix` only, not on the Marketplace.
-- v0.1.3 (2026-09-27, version chosen by Som): the Monitor panel, needs-you states, hook, agents, per-prompt diffs, always-visible status bar item, and fixes for native toasts, interrupts and token counts.
+- Current: v0.1.4 (released 2026-09-27; tags v0.1.0, v0.1.1, v0.1.2, v0.1.4 — it was briefly released as v0.1.3, then renamed at Som's request, so there is no v0.1.3). Distributed as GitHub release `.vsix` only, not on the Marketplace.
+- v0.1.4 (2026-09-27, version chosen by Som): the Monitor panel, needs-you states, hook, agents, per-prompt diffs, always-visible status bar item, and fixes for native toasts, interrupts and token counts.
 - Durable dev notes also live in `docs/NOTES.md` (travels with a clone). Keep both in sync.
 
 ## Stack / how it works
@@ -51,7 +51,7 @@ Delete the previous version's `.vsix` from the folder after release.
 - 0.1.2 (2026-09-21): widget never opened because spawn used `detached: true` (DETACHED_PROCESS, powershell exits 0 in ~70ms). Now `windowsHide: true`, `stdio: 'ignore'`, absolute System32 path. Button became a toggle; multi-monitor placement follows the mouse screen; mutex replaced by pid file; extension detects a stale build and offers reload.
 - PowerShell 5.1 traps hit here: `[Math]::Max(0,$double)` truncates to int; `Set-Content -Encoding utf8` writes a BOM (use `[IO.File]::WriteAllText`); `Get-Content -Tail` took ~37s on large transcripts (seek with FileStream); `New-Object Mutex(..., [ref]$created)` does not bind `createdNew`.
 - Verify the widget via EnumWindows/GetWindowRect, not by grepping process command lines.
-- 0.1.3 (2026-09-27): surveyed ~2,600 real turns to build the new state machine; `docs/NOTES.md` "Transcript facts" lists the shapes it relies on. Found and fixed: native toast + sound never ran on Windows (`detached: true` again), interrupts left turns running, tokens double-counted, duplicate history on every start.
+- 0.1.4 (2026-09-27): surveyed ~2,600 real turns to build the new state machine; `docs/NOTES.md` "Transcript facts" lists the shapes it relies on. Found and fixed: native toast + sound never ran on Windows (`detached: true` again), interrupts left turns running, tokens double-counted, duplicate history on every start.
 - The Notification hook edits `~/.claude/settings.json`: never rewrite it if it fails to parse; backup goes to `settings.json.before-claude-prompt-monitor`.
 
 ## Open items

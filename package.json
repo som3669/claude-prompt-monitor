@@ -2,7 +2,7 @@
   "name": "somshrestha-claude-prompt-monitor",
   "displayName": "Claude Prompt Monitor",
   "description": "Know the moment Claude Code needs you or is done. Tracks every prompt — live progress, ETA, questions and permission prompts waiting on you, background agents, usage limits, and exactly what each prompt changed. Works for the Claude Code VS Code extension and terminal sessions.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "somshrestha",
   "license": "MIT",
   "icon": "icon.png",

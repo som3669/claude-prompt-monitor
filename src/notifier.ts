@@ -248,7 +248,7 @@ export class Notifier implements vscode.Disposable {
 		try {
 			if (process.platform === 'win32') {
 				// No `detached`: on Windows that is DETACHED_PROCESS, and powershell.exe then exits in
-				// ~80ms without running the script. That is why native toasts never appeared before 0.1.3.
+				// ~80ms without running the script. That is why native toasts never appeared before 0.1.4.
 				const script = path.join(this.extensionPath, 'media', 'toast.ps1');
 				spawn(powershellPath(), ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script], {
 					stdio: 'ignore',
