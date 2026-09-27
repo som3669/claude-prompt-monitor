@@ -3,8 +3,8 @@
 VS Code extension that tracks every Claude Code prompt (VS Code extension and terminal sessions, any cwd): live progress, ETA learned from past prompts, when Claude is waiting on you (questions, plan approval, permission prompts via an opt-in hook), background agents, retries and usage limits, completion notifications with what changed, per-prompt diffs, a Monitor panel, and an always-on-top desktop widget that outlives VS Code.
 
 - Id `somshrestha.somshrestha-claude-prompt-monitor`, MIT. Own repo: https://github.com/som3669/claude-prompt-monitor (not the parent vs-code-extenstion-setup repo).
-- Last published release: v0.1.2 (2026-09-21; tags v0.1.0, v0.1.1, v0.1.2). Distributed as GitHub release `.vsix` only, not on the Marketplace.
-- v0.1.3 prepared 2026-09-27 (version chosen by Som): the Monitor panel, needs-you states, hook, agents, per-prompt diffs, and fixes for native toasts, interrupts and token counts. Bumped, CHANGELOG moved, `.vsix` built, installed into the Som profile and committed locally; push, tag `v0.1.3` and `gh release create` still to do (steps 4-5 below).
+- Current: v0.1.3 (released 2026-09-27; tags v0.1.0 to v0.1.3). Distributed as GitHub release `.vsix` only, not on the Marketplace.
+- v0.1.3 (2026-09-27, version chosen by Som): the Monitor panel, needs-you states, hook, agents, per-prompt diffs, always-visible status bar item, and fixes for native toasts, interrupts and token counts.
 - Durable dev notes also live in `docs/NOTES.md` (travels with a clone). Keep both in sync.
 
 ## Stack / how it works
@@ -56,4 +56,3 @@ Delete the previous version's `.vsix` from the folder after release.
 
 ## Open items
 - Marketplace publish not done (needs PAT + icon decision).
-- Publish 0.1.3: check it in a real window first (reload after install), then push, tag and `gh release create v0.1.3` with the `.vsix`; delete the 0.1.2 `.vsix` from the folder afterwards. Then update the version in `../CLAUDE.md` (vs-extension table).
